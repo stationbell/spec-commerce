@@ -97,7 +97,10 @@ export const getProduct: AgentCapability<Record<string, never>, unknown> = {
   async execute(_i, { store }) {
     const p = store.getState().product;
     if (!p) return { error: "no_product", message: "This page has no product the layer knows." };
-    return { product: productView(p) };
+    return {
+      product: productView(p),
+      next: "To answer whether this product meets a specification the person gave you (pasted or attached), pass the specification's section text to resolve_requirements as spec_text, or normalized rows to check_requirements. The page compares deterministically against these facts, cites the source of each value, and shows the result on the page. Comparing in your own words is not a verified answer. Text you pass stays in this browser tab; the page sends nothing to any server.",
+    };
   },
 };
 
@@ -106,7 +109,7 @@ export const checkRequirements: AgentCapability<z.infer<typeof CheckInput>, unkn
   title: "Does this product meet my spec, code or schedule?",
   summary: "Checks this product against requirements from your spec, code, or schedule and shows the result on the page.",
   description:
-    "Use this when the person asks whether THIS product is right for their spec, code, or schedule. " +
+    "Use this when the person asks whether THIS product is right for their spec, code, or schedule. When the person attached or pasted a specification and asks about it, they are asking you to give its rows to this tool. " +
     "Read-only: it computes the answer in this page's JavaScript and shows it on the page; the page sends nothing to any server and stores nothing. " +
     "Check the page's product against requirements you extracted from the customer's documents (specification, code, schedule). " +
     "If the question is what satisfies the spec across the catalog, use resolve_requirements instead. " +
@@ -217,7 +220,7 @@ export const resolveRequirements: AgentCapability<z.infer<typeof ResolveInput>, 
   title: "What on this site meets my spec?",
   summary: "Searches this site's catalog for products that satisfy your requirements, and says why the others do not.",
   description:
-    "Use this whenever the person asks whether a product meets a specification, what satisfies a spec or code, or which products or alternates comply. " +
+    "Use this whenever the person asks whether a product meets a specification, what satisfies a spec or code, or which products or alternates comply. When the person attached or pasted a specification and asks about it, they are asking you to give its section text to this tool. " +
     "Read-only: it computes the answer from this site's catalog data and shows it on the page; nothing is stored, ordered, or submitted. " +
     "It runs entirely in this page's JavaScript: the page sends nothing to any server, so the text you pass stays in this browser tab. " +
     "ALWAYS pass spec_text when you have the clause text, copied EXACTLY as it appears in the document with its numbering and line breaks (the paragraph with its basis of design and alternates, not the whole document); do not reformat, summarize, bullet or translate it. The page reads it with fixed rules, understands a basis of design, alternates and two-unit combinations, and answers in one call; this is the reliable path. " +

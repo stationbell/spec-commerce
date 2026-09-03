@@ -29,7 +29,7 @@ The page never guesses. If a requirement cannot be checked from product data, it
 1. Open the live demo in the ChatGPT desktop app's browser and put the chat in **Work** mode. Chat mode reads pages but does not use site tools. In Chrome, turn on the WebMCP flag first.
 2. Attach the demo specification, [spec-10-44-00-excerpt.pdf](https://spec-commerce.stationbell.com/artifacts/spec-10-44-00-excerpt.pdf) (also in [artifacts/](artifacts/)), and type:
 
-   > I attached our spec. Using this page's tools, does this product meet section 2.3, what on this site does, and which cabinet fits it and meets 2.2? Then propose a quote for me to approve.
+   > I attached our spec. Give sections 2.2 and 2.3 to this page's spec checker: does this product meet 2.3, what on this site does, and which cabinet fits it and meets 2.2? Then propose a quote for me to approve.
 
    The agent copies the sections out of the file and hands them to the page. If you would rather not attach a file, paste sections 2.2 and 2.3 into the chat with the prompt; they are below.
 

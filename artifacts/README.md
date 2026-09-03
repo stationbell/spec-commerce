@@ -10,4 +10,4 @@ project. They name no manufacturer or model.
   do not carry quantities.
 - `code-citations.md`: code values and citations only, no reproduced code text.
 
-For the video, open each file in a browser and print to PDF.
+Each document is here as Markdown (the source) and as a PDF (what you attach to the chat or show on camera). The PDFs are rendered from the Markdown; if you change one, re-render the other.

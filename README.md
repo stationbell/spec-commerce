@@ -27,70 +27,77 @@ The page never guesses. If a requirement cannot be checked from product data, it
 ## Try it in two minutes
 
 1. Open the live demo in the ChatGPT desktop app's browser and put the chat in **Work** mode. Chat mode reads pages but does not use site tools. In Chrome, turn on the WebMCP flag first.
-2. Paste this into the chat, the prompt and the spec together. The spec is sections 2.2 and 2.3 of the demo specification in [artifacts/](artifacts/), and the page reads them as written.
+2. Attach the demo specification, [artifacts/spec-10-44-00-excerpt.pdf](artifacts/spec-10-44-00-excerpt.pdf), and type:
 
-   > Using this page's tools, check this product against the spec below, tell me what on this site meets it and which cabinet fits it and meets 2.2, then propose a quote for me to approve.
-   >
-   > 2.2 FIRE-PROTECTION CABINET
-   >
-   > A. Cabinet Type: Cabinet suitable for housing the specified portable fire extinguisher.
-   >
-   > B. Cabinet Construction:
-   >    1. Non-rated unless a fire-rated cabinet is required by the wall construction.
-   >    2. Where fire-rated construction is required, provide a double-wall steel cabinet with integral fire-barrier material and factory-prepared mounting provisions.
-   >
-   > C. Cabinet Material: Cold-rolled steel sheet.
-   >    1. Shelf: Same metal and finish as cabinet unless otherwise indicated.
-   >
-   > D. Installation Configuration:
-   >    1. Recessed Cabinet: Trimless or concealed-flange configuration with door overlapping the wall finish.
-   >    2. Semirecessed Cabinet: One-piece trim and perimeter door frame overlapping the wall surface, with approximately 1-1/4 to 1-1/2 inch wall return where required.
-   >
-   > E. Door:
-   >    1. Material: Steel sheet, finished to match the cabinet.
-   >    2. Style: Vertical duo-panel door with frame.
-   >    3. Glazing: Clear transparent acrylic sheet.
-   >
-   > F. Door Hardware:
-   >    1. Manufacturer's standard operating hardware suitable for the cabinet and door configuration.
-   >    2. Projecting pull and friction latch.
-   >    3. Continuous hinge permitting the door to open approximately 180 degrees.
-   >
-   > G. Accessories:
-   >    1. Mounting Bracket: Steel bracket sized and configured to secure the extinguisher within the cabinet, with a corrosion-resistant or baked finish.
-   >    2. Identification: Mark cabinet door with the words "FIRE EXTINGUISHER" in code-compliant lettering. Provide durable contrasting lettering in a vertical orientation where required by the design.
-   >
-   > H. Materials:
-   >    1. Cold-Rolled Steel: Commercial-quality cold-rolled steel sheet complying with applicable ASTM requirements.
-   >       a. Finish: Baked enamel or powder-coat system suitable for architectural metalwork.
-   >       b. Prepare, pretreat, and coat exposed metal surfaces in accordance with coating manufacturer's written instructions.
-   >       c. Color: Neutral standard color selected for the demonstration artifact.
-   >    2. Stainless Steel: Type 304 stainless steel with No. 4 directional satin finish.
-   >    3. Transparent Acrylic Sheet: Clear cell-cast acrylic sheet, approximately 1.5 mm thick, with smooth or polished finish.
-   >
-   > 2.3 CLEAN-AGENT PORTABLE FIRE EXTINGUISHER
-   >
-   > A. Type: Clean-agent portable fire extinguisher in a steel container with durable polyester powder-coated finish.
-   >
-   > B. Rating: UL-rated not less than 2-A:10-B:C.
-   >
-   > C. Capacity: Nominal capacity approximately 7 kg (15.5 lb), or a comparable listed capacity capable of achieving the specified rating.
-   >
-   > D. Extinguishing Agent: Halocarbon-based clean agent with inert material, suitable for occupied spaces and compatible with the specified extinguisher rating.
-   >
-   > E. Pressure Indication: Provide pressure-indicating gauge.
-   >
-   > F. Primary Configuration: Listed clean-agent extinguisher meeting the requirements above. No proprietary manufacturer or model is designated for this demonstration specification.
-   >
-   > G. Acceptable Alternate Configurations:
-   >    1. Other listed halocarbon-based clean-agent fire extinguishers providing equivalent or better ratings and performance.
-   >    2. A combination consisting of:
-   >       a. Carbon-dioxide fire extinguisher with minimum 10-B:C rating; and
-   >       b. Stored-pressure water fire extinguisher with minimum 2-A rating.
+   > I attached our spec. Using this page's tools, does this product meet section 2.3, what on this site does, and which cabinet fits it and meets 2.2? Then propose a quote for me to approve.
+
+   The agent copies the sections out of the file and hands them to the page. If you would rather not attach a file, paste sections 2.2 and 2.3 into the chat with the prompt; they are below.
 
 3. Watch the panel. Spec review says the product on the page does not meet the spec and gives the numbers: its rating is 1-A:10-B:C and the spec needs 2-A:10-B:C. Recommendations shows what does: the 15.5 lb unit, with a note that the page could not check the pressure gauge from product data, and the CO2 plus water pair that alternate 2 allows. It shows the cabinet that fits and meets 2.2, the recessed Embassy with the vertical duo door, and explains why the semi-recessed Ambassador does not. Approvals shows the lines the agent suggests, waiting for your click. Approve one, change a quantity, reject one with a reason, or add a recommended product yourself, and ask the agent to read your decisions back.
 
-The full demo documents, the specification excerpt, a schedule sheet and code citations, are in [artifacts/](artifacts/).
+The full demo documents, the specification excerpt, a schedule sheet and code citations, are in [artifacts/](artifacts/) as Markdown and PDF.
+
+<details>
+<summary>Sections 2.2 and 2.3 of the demo specification, for pasting</summary>
+
+> 2.2 FIRE-PROTECTION CABINET
+>
+> A. Cabinet Type: Cabinet suitable for housing the specified portable fire extinguisher.
+>
+> B. Cabinet Construction:
+>    1. Non-rated unless a fire-rated cabinet is required by the wall construction.
+>    2. Where fire-rated construction is required, provide a double-wall steel cabinet with integral fire-barrier material and factory-prepared mounting provisions.
+>
+> C. Cabinet Material: Cold-rolled steel sheet.
+>    1. Shelf: Same metal and finish as cabinet unless otherwise indicated.
+>
+> D. Installation Configuration:
+>    1. Recessed Cabinet: Trimless or concealed-flange configuration with door overlapping the wall finish.
+>    2. Semirecessed Cabinet: One-piece trim and perimeter door frame overlapping the wall surface, with approximately 1-1/4 to 1-1/2 inch wall return where required.
+>
+> E. Door:
+>    1. Material: Steel sheet, finished to match the cabinet.
+>    2. Style: Vertical duo-panel door with frame.
+>    3. Glazing: Clear transparent acrylic sheet.
+>
+> F. Door Hardware:
+>    1. Manufacturer's standard operating hardware suitable for the cabinet and door configuration.
+>    2. Projecting pull and friction latch.
+>    3. Continuous hinge permitting the door to open approximately 180 degrees.
+>
+> G. Accessories:
+>    1. Mounting Bracket: Steel bracket sized and configured to secure the extinguisher within the cabinet, with a corrosion-resistant or baked finish.
+>    2. Identification: Mark cabinet door with the words "FIRE EXTINGUISHER" in code-compliant lettering. Provide durable contrasting lettering in a vertical orientation where required by the design.
+>
+> H. Materials:
+>    1. Cold-Rolled Steel: Commercial-quality cold-rolled steel sheet complying with applicable ASTM requirements.
+>       a. Finish: Baked enamel or powder-coat system suitable for architectural metalwork.
+>       b. Prepare, pretreat, and coat exposed metal surfaces in accordance with coating manufacturer's written instructions.
+>       c. Color: Neutral standard color selected for the demonstration artifact.
+>    2. Stainless Steel: Type 304 stainless steel with No. 4 directional satin finish.
+>    3. Transparent Acrylic Sheet: Clear cell-cast acrylic sheet, approximately 1.5 mm thick, with smooth or polished finish.
+>
+> 2.3 CLEAN-AGENT PORTABLE FIRE EXTINGUISHER
+>
+> A. Type: Clean-agent portable fire extinguisher in a steel container with durable polyester powder-coated finish.
+>
+> B. Rating: UL-rated not less than 2-A:10-B:C.
+>
+> C. Capacity: Nominal capacity approximately 7 kg (15.5 lb), or a comparable listed capacity capable of achieving the specified rating.
+>
+> D. Extinguishing Agent: Halocarbon-based clean agent with inert material, suitable for occupied spaces and compatible with the specified extinguisher rating.
+>
+> E. Pressure Indication: Provide pressure-indicating gauge.
+>
+> F. Primary Configuration: Listed clean-agent extinguisher meeting the requirements above. No proprietary manufacturer or model is designated for this demonstration specification.
+>
+> G. Acceptable Alternate Configurations:
+>    1. Other listed halocarbon-based clean-agent fire extinguishers providing equivalent or better ratings and performance.
+>    2. A combination consisting of:
+>       a. Carbon-dioxide fire extinguisher with minimum 10-B:C rating; and
+>       b. Stored-pressure water fire extinguisher with minimum 2-A rating.
+
+</details>
 
 ## The six tools
 

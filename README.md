@@ -27,11 +27,11 @@ The page never guesses. If a requirement cannot be checked from product data, it
 ## Try it in two minutes
 
 1. Open the live demo in the ChatGPT desktop app's browser and put the chat in **Work** mode. Chat mode reads pages but does not use site tools. In Chrome, turn on the WebMCP flag first.
-2. Attach the demo specification, [spec-10-44-00-excerpt.pdf](https://spec-commerce.stationbell.com/artifacts/spec-10-44-00-excerpt.pdf) (also in [artifacts/](artifacts/)), and type:
+2. Open the demo specification, [spec-10-44-00-excerpt.pdf](https://spec-commerce.stationbell.com/artifacts/spec-10-44-00-excerpt.pdf) (also in [artifacts/](artifacts/)). Copy sections 2.2 and 2.3 out of it, paste them into the chat, and type this above them:
 
-   > I attached our spec. Give sections 2.2 and 2.3 to this page's spec checker: does this product meet 2.3, what on this site does, and which cabinet fits it and meets 2.2? Then propose a quote for me to approve.
+   > Here is our spec. Give sections 2.2 and 2.3 to this page's spec checker: does this product meet 2.3, what on this site does, and which cabinet fits it and meets 2.2? Then propose a quote for me to approve.
 
-   The agent copies the sections out of the file and hands them to the page. If you would rather not attach a file, paste sections 2.2 and 2.3 into the chat with the prompt; they are below.
+   Paste the text rather than attaching the file. ChatGPT's browser treats an attached file as private and will not pass its contents to a site's tools, but it passes text you typed or pasted. The two sections are below if you want them without the PDF.
 
 3. Watch the panel. Spec review says the product on the page does not meet the spec and gives the numbers: its rating is 1-A:10-B:C and the spec needs 2-A:10-B:C. Recommendations shows what does: the 15.5 lb unit, with a note that the page could not check the pressure gauge from product data, and the CO2 plus water pair that alternate 2 allows. It shows the cabinet that fits and meets 2.2, the recessed Embassy with the vertical duo door, and explains why the semi-recessed Ambassador does not. Approvals shows the lines the agent suggests, waiting for your click. Approve one, change a quantity, reject one with a reason, or add a recommended product yourself, and ask the agent to read your decisions back.
 

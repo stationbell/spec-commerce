@@ -88,8 +88,7 @@ export function Shell(props: AppProps) {
         tabIndex={open ? -1 : 0}
         title={toolsOn ? "Spec check. An AI agent in this browser can verify this product against your specification and find what on this site meets it, using this page's tools." : "This browser does not expose WebMCP"}
       >
-        <span className={`sc-dot ${toolsOn ? (agentCalls > 0 ? "live" : "on") : ""}`} />
-        {label}
+        <span className="sc-tab-text">{waiting > 0 ? `${waiting} to approve` : "Spec check"}</span>
       </button>
       <div className={`sc-backdrop ${open ? "open" : ""}`} onClick={() => setOpen(false)} />
       <aside

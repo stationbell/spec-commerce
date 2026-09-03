@@ -247,3 +247,16 @@ details.sc-details > summary { display: flex; }
 .sc-table th:nth-child(2), .sc-table td:nth-child(2) { white-space: normal; }
 
 .sc-summary-note { margin-left: 8px; font: 400 13px/18px var(--font-body); color: var(--gray-1); }
+
+/* ---- requirement table, plain ---- */
+.sc-table th { font: 500 12.5px/16px var(--font-body); text-transform: none; letter-spacing: 0; color: var(--gray-1); padding: 0 10px 6px 0; }
+.sc-table td, .sc-table th[scope="row"] { padding: 8px 10px 8px 0; font: 14px/19px var(--font-body); color: var(--navy); vertical-align: top; }
+.sc-table td a { color: var(--navy); text-decoration: underline; text-decoration-color: var(--gray-2); text-underline-offset: 2px; }
+.sc-table td.res { font-weight: 500; white-space: nowrap; }
+.sc-table th:nth-child(1), .sc-table td:nth-child(1) { width: 30%; }
+.sc-table th:nth-child(2), .sc-table td:nth-child(2) { width: 26%; white-space: normal; }
+.sc-table th:nth-child(3), .sc-table td:nth-child(3) { width: 26%; }
+.sc-table th:nth-child(4), .sc-table td:nth-child(4) { width: 18%; }
+
+.sc-table td.res { white-space: normal; }
+.sc-from { color: var(--gray-1); font-weight: 400; }

@@ -518,7 +518,7 @@ function AddToQuote({ store, catalog, skus }: { store: AppStore; catalog: Produc
   );
 }
 
-/** One requirement as a table row: what the spec asks, what this product has, and the result in a word. */
+/** One requirement as a table row: the name, what the spec asks, what this product has (linking to its source), and one word. */
 function ReqTr({ m, r }: { m: RequirementMatch; r?: Requirement }) {
   const implied = r ? /_(in|lb|gal)$/.exec(r.attribute)?.[1] : undefined;
   const unit = r?.unit ?? implied;
@@ -526,16 +526,19 @@ function ReqTr({ m, r }: { m: RequirementMatch; r?: Requirement }) {
     ? m.requirementId
     : r.operator === "is_true"
       ? "required"
-      : `${OP[r.operator] ? `${OP[r.operator]} ` : ""}${Array.isArray(r.value) ? listWords(r.value.map(String)) : String(r.value)}${unit && typeof r.value === "number" ? ` ${unit}` : ""}`;
-  const section = r?.source.section && /\d/.test(r.source.section) ? `${SOURCE_WORD[r.source.kind]} §${r.source.section}` : r?.source.table ? `${SOURCE_WORD[r.source.kind]} table ${r.source.table}` : r && r.source.kind !== "spec" ? SOURCE_WORD[r.source.kind] : "";
+      : Array.isArray(r.value)
+        ? `${r.operator === "not_one_of" || r.operator === "ne" ? "not " : ""}${listWords(r.value.map(String))}`
+        : `${OP[r.operator] ? `${OP[r.operator]} ` : ""}${String(r.value)}${unit && typeof r.value === "number" ? ` ${unit}` : ""}`;
+  const section = r?.source.section && /\d/.test(r.source.section) ? `${SOURCE_WORD[r.source.kind]} ${r.source.section}` : r?.source.table ? `${SOURCE_WORD[r.source.kind]} table ${r.source.table}` : r ? SOURCE_WORD[r.source.kind] : "";
   const have = m.actual === undefined ? (m.reason === "not_a_product_attribute" ? "depends on the installation" : "not on file") : fmt(m.actual, m.unit ?? (typeof m.actual === "number" ? implied : undefined));
-  const result = m.status === "satisfied" ? "Meets" : m.status === "conflict" ? "Fails" : "Couldn't check";
+  const result = m.status === "satisfied" ? "Meets" : m.status === "conflict" ? "Fails" : m.reason === "not_a_product_attribute" ? "Not a product fact" : m.reason === "attribute_missing" ? "Not on file" : "Unclear";
+  const source = m.evidence ? evidenceWord(m.evidence) : "";
   return (
     <tr>
-      <th scope="row">{r ? cap(human(r.attribute)) : m.requirementId}{section && <small>{section}</small>}</th>
+      <th scope="row" title={section || undefined}>{r ? cap(human(r.attribute)) : m.requirementId}{r && r.source.kind !== "spec" ? <span className="sc-from"> ({SOURCE_WORD[r.source.kind]})</span> : null}</th>
       <td>{asks}</td>
-      <td>{have}<Ev e={m.evidence} /></td>
-      <td className={`res ${m.status}`}>{result}{m.status === "unknown" && m.reason && m.reason !== "attribute_missing" && <small>{REASON[m.reason] ?? m.reason}</small>}</td>
+      <td>{m.evidence?.url ? <a href={m.evidence.url} target="_blank" rel="noreferrer" title={source}>{have}</a> : have}</td>
+      <td className={`res ${m.status}`}>{result}</td>
     </tr>
   );
 }

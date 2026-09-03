@@ -120,7 +120,7 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
 
   return (
     <div>
-      <Head title="Spec check" sub={`${product.name}${product.priceCents !== null ? ` · ${formatCents(product.priceCents)}` : ""}`} toolsOn={toolsOn} connected={log.some((e) => e.source === "agent")} onClose={onClose} />
+      <Head title="Spec check" sub={`${product.name}${product.priceCents !== null ? `\u00a0·\u00a0${formatCents(product.priceCents)}` : ""}`} toolsOn={toolsOn} connected={log.some((e) => e.source === "agent")} onClose={onClose} />
       <div ref={topRef} />
 
       <Panel title="Spec review" status={!verdict ? "Not checked yet" : verdict.tone === "conflict" ? "Doesn't meet the spec" : verdict.tone === "satisfied" ? "Meets the spec" : "Partly verified"}>
@@ -153,7 +153,7 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
             const name = (s: string) => bySku(s)?.name ?? s;
             return (
               <div key={o.optionId} className="sc-clause">
-                <b>{(meta?.label ?? o.optionId).replace(/:\s.*$/, (m) => (m.length > 110 ? ": " + m.slice(2, 108).trim() + "…" : m))}</b>
+                <b>{(meta?.label ?? o.optionId).replace(/:\s.*$/, (m) => (m.length > 140 ? ": " + m.slice(2, 138).replace(/\s+\S*$/, "").trim() + "…" : m))}</b>
                 <ul className="sc-list">
                   {bod && <li><Dot s={bod.carried ? "satisfied" : "none"} /><span className="sc-grow">{bod.requested.manufacturer} {bod.requested.model}<span className="sc-badges"><span className={`sc-status ${bod.carried ? "satisfied" : ""}`}>{bod.carried ? "carried" : "not carried on this site"}</span></span>{bod.carried && <span className="sc-why">carried as {bod.carried.name}</span>}</span></li>}
                   {o.permitted.map((c) => <li key={c.sku}><Dot s={c.counts.unknown ? "unknown" : "satisfied"} /><Thumb p={bySku(c.sku)} /><span className="sc-grow"><a href={bySku(c.sku)?.url} target="_blank" rel="noreferrer">{name(c.sku)}</a><span className="sc-badges"><span className={`sc-status ${c.counts.unknown ? "unknown" : "satisfied"}`}>{o.kind === "basis_of_design" ? "the specified model" : "meets this clause"}</span>{c.counts.unknown > 0 && <span className="sc-status unknown">{c.counts.unknown} unverified</span>}</span><span className="sc-why">{verdictLine(c)}</span></span><span className="sc-amt">{amt(c.sku)}</span></li>)}

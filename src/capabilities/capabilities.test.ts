@@ -41,6 +41,14 @@ describe("tool contracts", () => {
     expect(out.basis_of_design.carried).toBeNull();
     expect(out.basis_of_design.equivalents_no_known_conflict).toEqual(["BE-71550"]);
   });
+  it("resolve_requirements flat form reads the catalog's aliases, the same as check_requirements", async () => {
+    const c = ctx();
+    const rating = reqInput.find((r) => r.attribute === "extinguisher_class_rating")!;
+    expect(rating).toBeDefined();
+    const out = (await resolveRequirements.execute(resolveRequirements.input.parse({ looking_for: "portable_fire_extinguisher", requirements: [{ ...rating, attribute: "rating" }] }), c)) as any;
+    expect(out.rejected.find((p: any) => p.sku === "BE-71100").reasons.join(" ")).toContain("1-A < 2-A");
+    expect(out.matches.map((p: any) => p.sku)).toContain("BE-71550");
+  });
   it("resolve_requirements with spec_text: one call, the right product first", async () => {
     const c = ctx();
     const FE1 = `Clean-Agent Type in Steel Container, FE1: UL-rated 2-A:10-B:C, 15.5-lb (7-kg) nominal capacity, with HFC Blend B agent and inert material in Polyester powder-coated container; with pressure-indicating gauge.

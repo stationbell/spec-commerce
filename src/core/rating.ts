@@ -5,7 +5,7 @@ export type ClassRating = { A?: number; B?: number; C?: boolean; K?: boolean; D?
 
 /**
  * Accepts "4A:80B:C", "4-A:80-B:C", "2A:10B:C", "80B:C", "5-B:C", "UL 1-A:10-B:C", "K", "2-A:10-B:C:K".
- * Returns null for anything it cannot read. Malformed is UNKNOWN downstream, never conflict.
+ * Returns null for anything it cannot read, including a class given twice. Malformed is UNKNOWN downstream, never conflict.
  */
 export function parseRating(input: unknown): ClassRating | null {
   if (typeof input !== "string") return null;
@@ -17,6 +17,7 @@ export function parseRating(input: unknown): ClassRating | null {
     if (!m) return null;
     const [, num, letter] = m;
     const cls = letter!.toUpperCase();
+    if (out[cls as keyof ClassRating] !== undefined) return null;
     if (cls === "A" || cls === "B") {
       if (num === undefined) return null;
       out[cls] = Number(num);

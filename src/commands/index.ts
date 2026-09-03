@@ -64,7 +64,7 @@ export function findCompatible(store: AppStore, catalog: Product[], lookingFor: 
 export function resolve(store: AppStore, catalog: Product[], family: ProductFamily, requirements: Requirement[], by: "agent" | "human", bod?: BasisOfDesign, specIssues: string[] = []) {
   const resolution = resolveRequirements(catalog, requirements, family, bod);
   // One active resolution mode at a time: a flat resolve replaces any structured one.
-  store.setState({ resolution, specResolution: null, specOptions: [], specRequirements: [], specIssues, matrix: null, alternatives: [], requirements: store.getState().requirements.length ? store.getState().requirements : requirements });
+  store.setState({ resolution, specResolution: null, specOptions: [], specRequirements: [], specIssues, matrix: null, alternatives: [], requirements });
   log(store, by, `resolved ${requirements.filter((r) => r.appliesTo === family).length} requirement(s) across ${catalog.filter((p) => p.family === family).length} ${family.replace(/_/g, " ")}s: ${resolution.matches.length} match, ${resolution.possible.length} possible, ${resolution.rejected.length} rejected${bod ? `; basis of design ${bod.manufacturer} ${bod.model} ${resolution.basisOfDesign?.carried ? "carried" : "not carried"}` : ""}`);
   return resolution;
 }

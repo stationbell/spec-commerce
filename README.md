@@ -153,12 +153,12 @@ A few rules the code keeps. Matching is deterministic; there is no model in the 
 
 ```
 pnpm install
-pnpm test          # 82 tests
+pnpm test          # 83 tests
 pnpm build         # bundle to build/, assemble dist/
 pnpm preview       # http://localhost:4173
 ```
 
-Requires Node 22.6 or newer and pnpm.
+Requires Node 22.18 or newer and pnpm.
 
 To release: `pnpm version patch --no-git-tag-version`, then `pnpm release` to freeze the build under `releases/` (a local artifact, kept out of git), then `pnpm ship` to deploy the static host and the demo page. The demo page pins the exact version. `pnpm promote && pnpm deploy:static` moves the `/v1/` pointer merchants follow. On a fresh clone, run `pnpm release` once before shipping.
 

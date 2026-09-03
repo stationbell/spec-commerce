@@ -32,6 +32,8 @@ describe("rating parser", () => {
   it("returns null for malformed input", () => {
     expect(parseRating("four A")).toBeNull();
     expect(parseRating("4A:80B:7C")).toBeNull();
+    expect(parseRating("2-A:10-B:C:1-A")).toBeNull(); // a class given twice is not read, never silently overwritten
+    expect(parseRating("2A:4A")).toBeNull();
     expect(parseRating("")).toBeNull();
     expect(parseRating(42)).toBeNull();
   });

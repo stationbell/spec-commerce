@@ -321,7 +321,7 @@ export const resolveRequirements: AgentCapability<z.infer<typeof ResolveInput>, 
         note: "permitted: the clause itself allows the product. technical_matches_substitution_approval_required: meets the basis-of-design requirements but is not the named model; a substitution request, not compliance. possible: no known conflict, something unresolved. Only this site's catalog was searched.",
       };
     }
-    const requirements = input.requirements!.map(toRequirement);
+    const requirements = toRequirements(input.requirements!);
     const res = commands.resolve(store, catalog, family, requirements, "agent", input.basis_of_design, input.spec_issues ?? []);
     return {
       looking_for: input.looking_for,

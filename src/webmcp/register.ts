@@ -96,6 +96,7 @@ export async function registerCapabilities(caps: AgentCapability<any, any>[], ct
   const registered: string[] = [];
   for (const cap of caps) {
     try {
+      // The WebMCP call itself, once per capability: document.modelContext.registerTool(tool, { signal }). mc is document.modelContext.
       await mc.registerTool(toTool(cap, ctx), { signal: controller.signal });
       registered.push(cap.id);
     } catch (e) {

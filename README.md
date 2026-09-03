@@ -2,6 +2,8 @@
 
 Turn building specifications into verified bills of materials, right on the merchant's product page. An AI agent does the reading. The page checks the facts against product data. A person approves every line.
 
+**A note before you read on.** This is an experimental demo I built for the WebMCP Challenge. It is not a finished product. It runs on one product page of my store behind a flag, and on a copy of that page. Nothing is sold or ordered through it. The catalog is a snapshot I copied by hand from cut sheets and product pages, and the prices are indicative. Expect rough edges. All trademarks belong to their respective companies.
+
 **Live demo:** https://spec-commerce.stationbell.com. Open it in the ChatGPT desktop app's browser with the chat in Work mode, or in Chrome 149 or newer with `chrome://flags/#enable-webmcp-testing` turned on. The demo page mirrors our real product page.
 
 The same panel is live on our store, behind a flag: https://usmadesupply.com/safety/fire-extinguishers/halotron/usms-marketplace/products/buckeye-11-lb-halotron-clean-agent-fire-extinguisher?spec-commerce. Paste that address in directly. The store is a single-page app, so the panel loads with the page, not when you click through to it. That page's markup and images belong to the store and are not part of this repository. The `host/` folder has a plain example page that mounts the same bundle.

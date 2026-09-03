@@ -63,6 +63,7 @@ export function assemble(strict = true): void {
   // --- demo page: pins the exact version of this package.json ---------------------------------
   if (versions.includes(version)) {
     cpSync(HOST_DIR, "dist/site", { recursive: true }); // page assets
+    copyDocuments("dist/site");
     const url = `${STATIC_ORIGIN}/${PRODUCT}/v${version}/${PRODUCT}.js`;
     writeFileSync("dist/site/index.html", template.replaceAll("__SC_BUNDLE_URL__", url));
   } else {
@@ -72,10 +73,18 @@ export function assemble(strict = true): void {
   // --- local preview: the fresh build, no release needed ---------------------------------------
   if (existsSync(`build/${PRODUCT}.js`)) {
     cpSync(HOST_DIR, "dist/local", { recursive: true });
+    copyDocuments("dist/local");
     writeFileSync("dist/local/index.html", template.replaceAll("__SC_BUNDLE_URL__", `/${PRODUCT}/dev/${PRODUCT}.js`));
     cpSync("build", `dist/local/${PRODUCT}/dev`, { recursive: true });
   }
   console.log(`[assemble] host: ${HOST_DIR}; releases: ${versions.join(", ") || "none"}; pointers: ${JSON.stringify(pointers)}; site pins v${version}`);
+}
+
+/** The demo documents (PDF) travel with the demo page at /artifacts/, so one link shows, downloads or drags them into a chat. */
+function copyDocuments(dest: string): void {
+  if (!existsSync("artifacts")) return;
+  mkdirSync(`${dest}/artifacts`, { recursive: true });
+  for (const f of readdirSync("artifacts")) if (f.endsWith(".pdf")) cpSync(`artifacts/${f}`, `${dest}/artifacts/${f}`);
 }
 
 if (process.argv[1] && process.argv[1].endsWith("assemble.ts")) assemble();

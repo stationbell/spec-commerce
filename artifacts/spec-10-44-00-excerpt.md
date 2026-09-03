@@ -47,7 +47,7 @@ H. Materials:
    1. Cold-Rolled Steel: Commercial-quality cold-rolled steel sheet complying with applicable ASTM requirements.
       a. Finish: Baked enamel or powder-coat system suitable for architectural metalwork.
       b. Prepare, pretreat, and coat exposed metal surfaces in accordance with coating manufacturer's written instructions.
-      c. Color: Neutral standard color selected for the demonstration artifact.
+      c. Color: Neutral standard color as selected by the Architect.
    2. Stainless Steel: Type 304 stainless steel with No. 4 directional satin finish.
    3. Transparent Acrylic Sheet: Clear cell-cast acrylic sheet, approximately 1.5 mm thick, with smooth or polished finish.
 
@@ -63,7 +63,7 @@ D. Extinguishing Agent: Halocarbon-based clean agent with inert material, suitab
 
 E. Pressure Indication: Provide pressure-indicating gauge.
 
-F. Primary Configuration: Listed clean-agent extinguisher meeting the requirements above. No proprietary manufacturer or model is designated for this demonstration specification.
+F. Primary Configuration: Listed clean-agent extinguisher meeting the requirements above. No proprietary manufacturer or model is designated.
 
 G. Acceptable Alternate Configurations:
    1. Other listed halocarbon-based clean-agent fire extinguishers providing equivalent or better ratings and performance.

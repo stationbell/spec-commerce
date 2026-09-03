@@ -236,11 +236,11 @@ export const resolveRequirements: AgentCapability<z.infer<typeof ResolveInput>, 
     };
     const family = input.looking_for as ProductFamily;
     if (input.spec_text) {
-      const parsed = parseSpecText(input.spec_text);
+      const parsed = parseSpecText(input.spec_text, undefined, family);
       const issues = [...(input.spec_issues ?? []), ...parsed.notes, ...parsed.unparsed.map((u) => `Not read by the page (pass as requirements if it matters): "${u}"`)].slice(0, 8);
       const res = commands.resolveSpec(store, catalog, family, parsed.options, "agent", issues);
       const product = store.getState().product;
-      const check = product && parsed.primary.length ? commands.checkRequirements(store, catalog, parsed.primary, "agent", { keepResolution: true }) : null;
+      const check = product && product.family === family && parsed.primary.length ? commands.checkRequirements(store, catalog, parsed.primary, "agent", { keepResolution: true }) : null;
       const name = (sku: string) => catalog.find((p) => p.sku === sku)?.name ?? sku;
       const price = (sku: string) => { const p = catalog.find((x) => x.sku === sku); return p?.priceCents != null ? ` (${formatCents(p.priceCents)})` : ""; };
       const parts: string[] = [];

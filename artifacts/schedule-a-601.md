@@ -4,10 +4,8 @@
 
 | Tag | Item | Rating (min) | Qty | Unit | Locations | Mounting |
 |---|---|---|---|---|---|---|
-| FE-1 | Clean agent, 15.5 lb (basis of design Amerex 398; alternates per Spec 2.4) | 2-A:10-B:C | 14 | EA | Offices, corridors C101–C112, support areas | In FEC-1 |
-| FEC-1 | Semi-recessed steel cabinet, white, acrylic door, sized for FE-1 | — | 14 | EA | At each FE-1 | Semi-recessed |
-| **FE-3** | **Clean agent (Halotron I or equal), 11 lb** | **1-A:10-B:C** | **6** | **EA** | **E101, E102 (electrical); 1M1 (MDF); 1I1, 1I2 (IDF); data hall entry** | **In FEC-2** |
-| **FEC-2** | **Semi-recessed steel cabinet, white, acrylic door, sized for FE-3** | — | **6** | **EA** | **At each FE-3** | **Semi-recessed** |
+| **FE-1** | **Clean-agent portable fire extinguisher per Section 10 44 00, 2.3** | **2-A:10-B:C** | **6** | **EA** | **E101, E102 (electrical); 1M1 (MDF); 1I1, 1I2 (IDF); data hall entry** | **In FEC-1** |
+| **FEC-1** | **Fire-protection cabinet per Section 10 44 00, 2.2, recessed where wall depth allows, otherwise semirecessed** | — | **6** | **EA** | **At each FE-1** | **Recessed / semirecessed** |
 
 Notes: 1. Verify final locations with the life-safety plan, sheet LS-101. 2. Mount so the top of
 the extinguisher is not more than 60 in above finished floor. 3. Quantities on this sheet govern

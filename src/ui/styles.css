@@ -235,3 +235,8 @@ details.sc-details > summary { display: flex; }
   .sc-launcher, .sc-launcher.attention, .sc-dot.live, .sc-drawer, .sc-backdrop, .sc-panel-head::before { animation: none !important; transition: none !important; }
   .sc-launcher:hover { transform: none; }
 }
+
+.sc-table { table-layout: fixed; }
+.sc-table th[scope="row"] { font: 14px/19px var(--font-body); text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
+.sc-table td { overflow-wrap: anywhere; }
+.sc-table th:nth-child(2), .sc-table td:nth-child(2) { white-space: normal; }

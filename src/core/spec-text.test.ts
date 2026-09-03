@@ -160,3 +160,46 @@ describe("a bare 'Basis of Design:' heading", () => {
     expect(p.options[0]!.id).toBe("spec");
   });
 });
+
+describe("Section 10 44 00 as the demo specification writes it (lettered attribute paragraphs, an alternates heading, lettered combination parts)", async () => {
+  const { SPEC_TEXT, SPEC_DOCUMENT, SPEC_EXTINGUISHER, SPEC_CABINET } = await import("../demo/requirements");
+
+  it("reads 2.3 for the extinguisher out of the whole section", () => {
+    const p = SPEC_EXTINGUISHER;
+    const attrs = Object.fromEntries(p.primary.map((r) => [r.attribute, r]));
+    expect(attrs.agent?.value).toBe("clean agent");
+    expect(attrs.extinguisher_class_rating?.value).toBe("2-A:10-B:C");
+    expect(attrs.cylinder_material?.value).toBe("steel");
+    expect(attrs.pressure_gauge?.value).toBe(true);
+    expect(attrs.ul_listed?.value).toBe(true);
+    expect(attrs.capacity_lb).toBeUndefined(); // "approximately … or a comparable listed capacity": the rating governs
+    expect(p.notes.some((n) => /rating governs/.test(n))).toBe(true);
+    expect(p.notes.some((n) => /no basis-of-design model/.test(n))).toBe(true);
+    expect(attrs.extinguisher_class_rating?.source.section).toBe("2.3.B");
+    expect(p.options.map((o) => [o.id, o.kind])).toEqual([["spec", "alternate"], ["alt-1", "alternate"], ["alt-2", "assembly"]]);
+    const alt2 = p.options[2]!;
+    expect(alt2.slots?.map((s) => [s.requirements.find((r) => r.attribute === "agent")?.value, s.requirements.find((r) => r.attribute === "extinguisher_class_rating")?.value])).toEqual([["carbon dioxide", "10-B:C"], ["water", "2-A"]]);
+    expect(p.unparsed).toEqual([]);
+  });
+
+  it("reads 2.2 for the cabinet out of the whole section", () => {
+    const p = SPEC_CABINET;
+    const attrs = Object.fromEntries(p.primary.map((r) => [r.attribute, r]));
+    expect(attrs.fits_extinguisher?.value).toBe(true);
+    expect(attrs.material?.value).toBe("steel");
+    expect(attrs.mounting?.value).toEqual(["semi-recessed", "recessed"]);
+    expect(attrs.door_frame_material?.value).toBe("steel");
+    expect(attrs.door_style?.value).toBe("vertical-duo");
+    expect(attrs.door_material?.value).toBe("acrylic");
+    expect(attrs.finish?.value).toEqual(["baked enamel", "powder coat"]);
+    expect(attrs.door_style?.source.section).toBe("2.2.E");
+    expect(p.unparsed).toEqual([]);
+  });
+
+  it("pasting only 2.3 gives the same reading as the whole section", () => {
+    const only = SPEC_TEXT.slice(SPEC_TEXT.indexOf("2.3 CLEAN-AGENT"), SPEC_TEXT.indexOf("2.4 FABRICATION"));
+    const p = parseSpecText(only, SPEC_DOCUMENT, "portable_fire_extinguisher");
+    expect(p.primary.map((r) => r.attribute).sort()).toEqual(SPEC_EXTINGUISHER.primary.map((r) => r.attribute).sort());
+    expect(p.options.map((o) => o.kind)).toEqual(["alternate", "alternate", "assembly"]);
+  });
+});

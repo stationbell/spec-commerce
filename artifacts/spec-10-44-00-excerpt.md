@@ -1,52 +1,95 @@
-# Project Specification — Section 10 44 00, Fire Protection Specialties (excerpt)
+# Project Specification, Section 10 44 00 Fire Extinguishers and Cabinets (excerpt)
 
-**Project:** Westgate Data Center, Building 1 · **Issue:** Permit set, 2026-08-14 · Pages 3–4 of 6
+**Project:** Westgate Data Center, Building 1 · **Issue:** Permit set, 2026-08-14 · Part 2 of Section 10 44 00
 
-## PART 2 — PRODUCTS
+SECTION 10 44 00 - FIRE EXTINGUISHERS AND CABINETS
 
-### 2.2 Portable Fire Extinguishers — electrical rooms, MDF/IDF rooms, data hall (tag FE-3)
+PART 2 - PRODUCTS
 
-A. Extinguishers in electrical rooms, MDF/IDF rooms and the data hall shall be clean agent type
-   (Halotron I or equal), leaving no residue.
+2.1 GENERAL REQUIREMENTS
 
-B. Nominal agent capacity: not less than 11 lb.
+A. Source Coordination: Provide fire-protection cabinets, accessories, and fire extinguishers as a coordinated system from qualified manufacturers.
 
-C. Minimum UL rating 1-A:10-B:C.
+B. Fire-Rated Cabinets: Where installed in fire-resistance-rated wall assemblies, provide cabinets listed and labeled for the required wall fire-resistance rating and tested in accordance with applicable firestop or cabinet listing requirements.
 
-D. Listed under UL 2129 (clean agent) and rated under UL 711.
+C. Electrical Components: Where electrical components, devices, or accessories are provided, list and label them for the intended location and application in accordance with applicable electrical-code requirements.
 
-E. Provide wall hook or bracket furnished by the extinguisher manufacturer where not cabinet-mounted.
+2.2 FIRE-PROTECTION CABINET
 
-### 2.3 Fire Extinguisher Cabinets (tag FEC-2)
+A. Cabinet Type: Cabinet suitable for housing the specified portable fire extinguisher.
 
-A. Cabinets: semi-recessed, for 3-5/8 in metal stud partitions.
+B. Cabinet Construction:
+   1. Non-rated unless a fire-rated cabinet is required by the wall construction.
+   2. Where fire-rated construction is required, provide a double-wall steel cabinet with integral fire-barrier material and factory-prepared mounting provisions.
 
-B. Tub and door frame: cold-rolled steel.
+C. Cabinet Material: Cold-rolled steel sheet.
+   1. Shelf: Same metal and finish as cabinet unless otherwise indicated.
 
-C. Finish: white powder coat.
+D. Installation Configuration:
+   1. Recessed Cabinet: Trimless or concealed-flange configuration with door overlapping the wall finish.
+   2. Semirecessed Cabinet: One-piece trim and perimeter door frame overlapping the wall surface, with approximately 1-1/4 to 1-1/2 inch wall return where required.
 
-D. Door: full-view clear acrylic glazing.
+E. Door:
+   1. Material: Steel sheet, finished to match the cabinet.
+   2. Style: Vertical duo-panel door with frame.
+   3. Glazing: Clear transparent acrylic sheet.
 
-E. Projection from finished wall: not more than 4 in where the cabinet is on an accessible route
-   (ref. 2010 ADA Standards 307.2).
+F. Door Hardware:
+   1. Manufacturer's standard operating hardware suitable for the cabinet and door configuration.
+   2. Projecting pull and friction latch.
+   3. Continuous hinge permitting the door to open approximately 180 degrees.
 
-F. Size cabinets to accommodate the extinguisher specified in 2.2 with the door fully closed.
+G. Accessories:
+   1. Mounting Bracket: Steel bracket sized and configured to secure the extinguisher within the cabinet, with a corrosion-resistant or baked finish.
+   2. Identification: Mark cabinet door with the words "FIRE EXTINGUISHER" in code-compliant lettering. Provide durable contrasting lettering in a vertical orientation where required by the design.
 
-### 2.4 Portable Fire Extinguishers — office and support areas (tag FE-1)
+H. Materials:
+   1. Cold-Rolled Steel: Commercial-quality cold-rolled steel sheet complying with applicable ASTM requirements.
+      a. Finish: Baked enamel or powder-coat system suitable for architectural metalwork.
+      b. Prepare, pretreat, and coat exposed metal surfaces in accordance with coating manufacturer's written instructions.
+      c. Color: Neutral standard color selected for the demonstration artifact.
+   2. Stainless Steel: Type 304 stainless steel with No. 4 directional satin finish.
+   3. Transparent Acrylic Sheet: Clear cell-cast acrylic sheet, approximately 1.5 mm thick, with smooth or polished finish.
 
-A. Basis of design: Amerex Model 398, 15.5 lb Halotron I (HFC Blend B) clean agent, UL rated
-   2-A:10-B:C, steel cylinder with polyester powder coat, stored pressure with gauge.
+2.3 CLEAN-AGENT PORTABLE FIRE EXTINGUISHER
 
-B. Alternate 2: a clean agent extinguisher using an agent other than Halotron I or carbon
-   dioxide, rated not less than 2-A:10-B:C.
+A. Type: Clean-agent portable fire extinguisher in a steel container with durable polyester powder-coated finish.
 
-C. Alternate 3: two extinguishers at each FE-1 location: one carbon dioxide extinguisher rated
-   not less than 10-B:C and one stored-pressure water extinguisher rated not less than 2-A.
+B. Rating: UL-rated not less than 2-A:10-B:C.
 
-D. Products other than the basis of design and the alternates above are subject to the
-   substitution procedure in Section 01 25 00.
+C. Capacity: Nominal capacity approximately 7 kg (15.5 lb), or a comparable listed capacity capable of achieving the specified rating.
 
-## PART 3 — EXECUTION (excerpt)
+D. Extinguishing Agent: Halocarbon-based clean agent with inert material, suitable for occupied spaces and compatible with the specified extinguisher rating.
 
-3.2.A Install extinguishers and cabinets at the locations and in the quantities shown on the
-      Fire Extinguisher Schedule, sheet A-601. Quantities are not stated in this Section.
+E. Pressure Indication: Provide pressure-indicating gauge.
+
+F. Primary Configuration: Listed clean-agent extinguisher meeting the requirements above. No proprietary manufacturer or model is designated for this demonstration specification.
+
+G. Acceptable Alternate Configurations:
+   1. Other listed halocarbon-based clean-agent fire extinguishers providing equivalent or better ratings and performance.
+   2. A combination consisting of:
+      a. Carbon-dioxide fire extinguisher with minimum 10-B:C rating; and
+      b. Stored-pressure water fire extinguisher with minimum 2-A rating.
+
+2.4 FABRICATION
+
+A. Fire-Protection Cabinets: Provide manufacturer's standard cabinet box, trim, frame, door, and hardware suitable for the indicated cabinet type and installation configuration.
+   1. Weld joints and grind exposed welds smooth.
+   2. Provide factory-prepared mounting holes or equivalent mounting provisions.
+
+B. Cabinet Doors:
+   1. Fabricate doors in accordance with manufacturer's standards and coordinate materials with cabinet type and trim.
+   2. Provide rigid frame construction with formed or tubular stiles and rails.
+   3. Miter and weld perimeter frames where applicable and grind exposed welds smooth.
+
+C. Cabinet Trim: Fabricate trim as a continuous assembly where practical, with corners mitered, welded, and ground smooth.
+
+2.5 FINISHES
+
+A. Apply architectural metal finishes in accordance with recognized industry practices for metal products.
+
+B. Protect exposed finished surfaces from damage during shipment and installation with removable temporary protection.
+
+C. Finish fire-protection cabinets after assembly where required for a uniform appearance.
+
+D. Appearance of Finished Work: Noticeable variations within the same exposed component are not acceptable. Minor variations between adjoining components are acceptable when within the normal range of the specified finish and arranged to minimize contrast.

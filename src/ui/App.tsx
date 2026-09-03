@@ -3,8 +3,7 @@ import { useStore } from "zustand";
 import * as commands from "../commands";
 import { buildQuoteRequest, formatCents } from "../core";
 import type { EvidenceSource, Product, ProductCandidate, Requirement, RequirementMatch } from "../core/types";
-import { DEMO_REQUIREMENTS, SPEC_REQUIREMENTS } from "../demo/requirements";
-import { FE1_OPTIONS, FE1_SPEC_ISSUES } from "../demo/spec-options";
+import { CODE_REQUIREMENTS, SPEC_CABINET, SPEC_EXTINGUISHER } from "../demo/requirements";
 import type { AppState, AppStore, CompatibleCandidate } from "../store/store";
 
 export type ToolSummary = { id: string; summary: string; effect: string };
@@ -26,7 +25,7 @@ const words = (attr: string) => attr.replace(/_in$/, " (in)").replace(/_lb$/, " 
 const HUMAN: Record<string, string> = {
   extinguisher_class_rating: "rating", capacity_lb: "capacity", capacity_gal: "capacity", agent: "agent", agent_name: "agent name", agent_chemistry: "agent chemistry",
   cylinder_material: "cylinder", finish: "finish", pressure_gauge: "pressure gauge", ul_listed: "UL listing", listings: "listings",
-  mounting: "mounting", material: "material", door_material: "door", door_style: "door style", projection_in: "projection from the wall",
+  mounting: "mounting", material: "material", door_material: "door glazing", door_frame_material: "door material", door_style: "door style", projection_in: "projection from the wall",
   interior_width_in: "interior width", interior_height_in: "interior height", interior_depth_in: "interior depth", accommodates_up_to_lb: "size class", fits_extinguisher: "fit",
 };
 const human = (attr: string) => HUMAN[attr] ?? words(attr);
@@ -102,10 +101,11 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
 
   const otherFamily = product.family === "portable_fire_extinguisher" ? "fire_extinguisher_cabinet" : "portable_fire_extinguisher";
   const loadDemo = () => {
-    if (product.family === "portable_fire_extinguisher") commands.resolveSpec(store, catalog, product.family, FE1_OPTIONS, "human", FE1_SPEC_ISSUES);
-    else commands.resolve(store, catalog, product.family, DEMO_REQUIREMENTS.filter((r) => r.appliesTo === product.family), "human");
-    commands.checkRequirements(store, catalog, DEMO_REQUIREMENTS, "human", { keepResolution: true });
-    commands.findCompatible(store, catalog, otherFamily, SPEC_REQUIREMENTS, "human");
+    const mine = product.family === "portable_fire_extinguisher" ? SPEC_EXTINGUISHER : SPEC_CABINET;
+    const theirs = product.family === "portable_fire_extinguisher" ? SPEC_CABINET : SPEC_EXTINGUISHER;
+    commands.resolveSpec(store, catalog, product.family, mine.options, "human", mine.notes);
+    commands.checkRequirements(store, catalog, [...mine.primary, ...CODE_REQUIREMENTS.filter((r) => r.appliesTo === product.family)], "human", { keepResolution: true });
+    commands.findCompatible(store, catalog, otherFamily, theirs.primary, "human");
   };
   const anything = !!(matrix || resolution || specResolution || compatible || quoteLines.length);
   const attrName = (id: string) => human(reqById.get(id)?.attribute ?? id);
@@ -377,7 +377,7 @@ function FitCard({ compatible, bySku, product, store, catalog }: { compatible: {
     <div className="sc-sub">
       <h4>{title}</h4>
       <ul className="sc-list sc-recs">
-        {good.map((c) => { const p = bySku(c.sku); return <li key={c.sku}><span className="sc-thumbs"><Thumb p={p} /></span><span className="sc-grow"><a href={p?.url} target="_blank" rel="noreferrer">{p?.name ?? c.sku}</a><span className="sc-line">{cap(fitWords(c))}.{c.candidate.counts.unknown > 0 ? ` ${c.candidate.counts.unknown} requirement${c.candidate.counts.unknown === 1 ? "" : "s"} couldn't be checked.` : ""}</span><AddToQuote store={store} catalog={catalog} skus={[c.sku]} /></span><span className="sc-amt">{p?.priceCents != null ? formatCents(p.priceCents) : ""}</span></li>; })}
+        {good.map((c) => { const p = bySku(c.sku); return <li key={c.sku}><span className="sc-thumbs"><Thumb p={p} /></span><span className="sc-grow"><a href={p?.url} target="_blank" rel="noreferrer">{p?.name ?? c.sku}</a><span className="sc-line">{cap(fitWords(c))}.{(() => { const n = c.candidate.matches.filter((m) => m.status === "unknown" && m.reason !== "pair_check_required").length; return n > 0 ? ` ${n} requirement${n === 1 ? "" : "s"} couldn't be checked.` : ""; })()}</span><AddToQuote store={store} catalog={catalog} skus={[c.sku]} /></span><span className="sc-amt">{p?.priceCents != null ? formatCents(p.priceCents) : ""}</span></li>; })}
         {good.length === 0 && <li><Dot s="conflict" /><span>Nothing on this site both fits and meets the cabinet requirements.</span></li>}
       </ul>
       {rest.length > 0 && (

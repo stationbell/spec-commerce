@@ -10,9 +10,10 @@ describe("US Made Supply snapshot vs the demo documents", () => {
       expect(attr.evidence.kind, `${p.sku}.${k}`).toMatch(/manufacturer_datasheet|merchant_product_page|merchant_guide/);
     }
   });
-  it("Halotron 11 lb meets the spec, conflicts with the supplied 2-A code minimum", () => {
-    const spec = matchProduct(HALOTRON_11, SPEC_REQUIREMENTS);
-    expect(spec.status).toBe("exact");
+  it("Halotron 11 lb fails the spec's 2-A:10-B:C rating and the supplied 2-A code minimum", () => {
+    const spec = matchProduct(HALOTRON_11, SPEC_REQUIREMENTS.filter((r) => r.appliesTo === "portable_fire_extinguisher"));
+    expect(spec.status).toBe("conflict");
+    expect(spec.matches.find((m) => m.requirementId === "spec-ext-extinguisher_class_rating")?.detail).toContain("1-A < 2-A");
     const all = matchProduct(HALOTRON_11, DEMO_REQUIREMENTS);
     expect(all.status).toBe("conflict");
     const twoA = all.matches.find((m) => m.requirementId === "nfpa10-6.2.1.1");
@@ -23,27 +24,30 @@ describe("US Made Supply snapshot vs the demo documents", () => {
   it("Halotron 15.5 lb meets both spec and the supplied code rows that are product facts", () => {
     const m = matchProduct(HALOTRON_15, DEMO_REQUIREMENTS);
     expect(m.counts.conflict).toBe(0);
-    expect(m.status).toBe("partial"); // the installation-only row stays unresolved
+    expect(m.status).toBe("partial"); // the gauge is not on file and the mounting height is installation, not product
+    expect(m.matches.filter((x) => x.status === "unknown").map((x) => x.requirementId).sort()).toEqual(["nfpa10-6.1.3.8", "spec-ext-pressure_gauge"]);
   });
   it("ABC 10 lb conflicts on agent (and on capacity)", () => {
     const m = matchProduct(ABC_10, SPEC_REQUIREMENTS);
     expect(m.status).toBe("conflict");
-    expect(m.matches.find((x) => x.requirementId === "spec-2.2-a")?.status).toBe("conflict");
+    expect(m.matches.find((x) => x.requirementId === "spec-ext-agent")?.status).toBe("conflict");
   });
   it("extinguisher candidates rank: 15.5 lb exact-ish first, ABC last", () => {
     const ranked = matchCatalog(CATALOG, CODE_REQUIREMENTS, "portable_fire_extinguisher").map((c) => [c.sku, c.status]);
     expect(ranked[0]?.[0]).toBe("BE-71550");
     expect(ranked.at(-1)?.[1]).toBe("conflict");
   });
-  it("cabinets vs spec §2.3: only the Ambassador 2017F10 clears every product-fact row", () => {
+  it("cabinets vs spec 2.2: the recessed Embassy cabinets clear every product-fact row, the Ambassador fails on door style", () => {
     const rows = matchCatalog(CATALOG, SPEC_REQUIREMENTS, "fire_extinguisher_cabinet");
     const by = Object.fromEntries(rows.map((r) => [r.sku, r]));
-    expect(by["JL-2017F10"]!.counts.conflict).toBe(0);
-    expect(by["JL-2017F10"]!.matches.find((m) => m.requirementId === "spec-2.3-f")?.reason).toBe("pair_check_required");
-    expect(by["JL-1027F10"]!.matches.find((m) => m.requirementId === "spec-2.3-b")?.status).toBe("conflict"); // aluminum
-    expect(by["JL-12001-H-I"]!.matches.find((m) => m.requirementId === "spec-2.3-e")?.status).toBe("conflict"); // 9.5 in proud
-    expect(by["JL-5614V10"]!.matches.find((m) => m.requirementId === "spec-2.3-a")?.status).toBe("conflict"); // recessed, not semi
-    expect(by["JL-1013F10"]!.matches.find((m) => m.requirementId === "spec-2.3-e")?.status).toBe("conflict"); // 6.5 in proud
+    for (const sku of ["JL-5714V10", "JL-5614V10"]) {
+      expect(by[sku]!.counts.conflict, sku).toBe(0);
+      expect(by[sku]!.matches.find((m) => m.requirementId === "spec-cab-fits_extinguisher")?.reason).toBe("pair_check_required");
+    }
+    expect(by["JL-2017F10"]!.matches.find((m) => m.requirementId === "spec-cab-door_style")?.status).toBe("conflict"); // full-view, not vertical duo
+    expect(by["JL-1027F10"]!.matches.find((m) => m.requirementId === "spec-cab-material")?.status).toBe("conflict"); // aluminum
+    expect(by["JL-12001-H-I"]!.matches.find((m) => m.requirementId === "spec-cab-material")?.status).toBe("conflict"); // plastic
+    expect(by["JL-1013F10"]!.matches.find((m) => m.requirementId === "spec-cab-mounting")?.status).toBe("conflict"); // surface mount
   });
   it("fit: the 7 in Halotron cylinder vs each tub", () => {
     expect(fitCheck(HALOTRON_11, AMBASSADOR_2017F10).status).toBe("satisfied"); // 7.75 in tub, 0.75 in clearance

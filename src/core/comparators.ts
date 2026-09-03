@@ -27,6 +27,7 @@ export const ATTRIBUTE_TYPES: Record<string, AttributeType> = {
   material: "enum",
   finish: "enum",
   door_material: "enum",
+  door_frame_material: "enum",
   door_style: "enum",
   interior_width_in: "numeric",
   interior_height_in: "numeric",

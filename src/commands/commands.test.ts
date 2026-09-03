@@ -18,12 +18,12 @@ describe("commands", () => {
     const { matrix, alternatives } = checkRequirements(store, CATALOG, DEMO_REQUIREMENTS, "agent");
     expect(matrix.status).toBe("conflict");
     expect(alternatives.map((x) => x.sku)).toEqual(["BE-71550"]);
-    expect(alternatives[0]!.counts.unknown).toBe(1); // the installation-only row
+    expect(alternatives[0]!.counts.unknown).toBe(2); // the gauge is not on file; the mounting height is installation, not product
   });
   it("findCompatible ranks the fitting, conflict-free cabinet first", () => {
     const store = booted();
     const c = findCompatible(store, CATALOG, "fire_extinguisher_cabinet", SPEC_REQUIREMENTS, "agent");
-    expect(c[0]?.sku).toBe("JL-2017F10");
+    expect(c[0]?.sku).toBe("JL-5714V10"); // recessed, vertical duo door, fits the page's unit
     expect(c[0]?.fit?.status).toBe("satisfied");
     expect(() => findCompatible(store, CATALOG, "portable_fire_extinguisher", SPEC_REQUIREMENTS, "agent")).toThrow();
   });

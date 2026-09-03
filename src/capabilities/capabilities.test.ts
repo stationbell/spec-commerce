@@ -28,7 +28,7 @@ describe("tool contracts", () => {
     expect(out.rows.find((r: any) => r.requirement_id === "nfpa10-6.2.1.1").result).toBe("conflict");
     expect(out.rows.find((r: any) => r.requirement_id === "nfpa10-6.1.3.8").reason).toBe("not_a_product_attribute");
     expect(out.alternatives.map((a: any) => a.sku)).toEqual(["BE-71550"]);
-    expect(out.alternatives[0].counts.unresolved).toBe(1);
+    expect(out.alternatives[0].counts.unresolved).toBe(2);
   });
   it("resolve_requirements answers 'what satisfies this spec' across the catalog", async () => {
     const c = ctx();
@@ -103,7 +103,7 @@ describe("tool contracts", () => {
     expect(findCompatible.input.safeParse({ looking_for: "fire_extinguisher_cabinet", requirements: reqInput }).success).toBe(false);
     const cabinetRows = reqInput.filter((r) => r.applies_to === "fire_extinguisher_cabinet");
     const out = (await findCompatible.execute(findCompatible.input.parse({ looking_for: "fire_extinguisher_cabinet", requirements: cabinetRows }), c)) as any;
-    expect(out.candidates[0].sku).toBe("JL-2017F10");
+    expect(out.candidates[0].sku).toBe("JL-5714V10");
     expect(out.candidates[0].fit.result).toBe("verified");
     expect(out.candidates[0].fit.clearances_in[0].clearanceIn).toBe(0.75);
   });

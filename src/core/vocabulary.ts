@@ -26,6 +26,7 @@ const ATTRIBUTE_ALIASES: Record<string, string> = {
   cabinet_material: "material", tub_material: "material", body_material: "material", construction: "material", frame_material: "material", tub_and_frame_material: "material", box_material: "material",
   door: "door_material", door_glazing: "door_material", glazing: "door_material", window: "door_material", door_panel: "door_material", glazing_material: "door_material", window_material: "door_material",
   door_type: "door_style", door_design: "door_style", door_configuration: "door_style",
+  door_frame_material: "door_frame_material", door_metal: "door_frame_material", door_construction: "door_frame_material", door_frame: "door_frame_material", door_sheet: "door_frame_material",
   projection: "projection_in", protrusion: "projection_in", protrusion_in: "projection_in", wall_projection_in: "projection_in", projection_from_wall_in: "projection_in", max_projection_in: "projection_in",
   interior_width: "interior_width_in", interior_height: "interior_height_in", interior_depth: "interior_depth_in", tub_depth_in: "interior_depth_in", tub_width_in: "interior_width_in", tub_height_in: "interior_height_in",
   accommodates: "accommodates_up_to_lb", accommodates_lb: "accommodates_up_to_lb", fits_up_to_lb: "accommodates_up_to_lb", extinguisher_size_lb: "accommodates_up_to_lb", max_extinguisher_lb: "accommodates_up_to_lb", capacity_class_lb: "accommodates_up_to_lb",
@@ -68,6 +69,11 @@ const ENUM_CANON: Record<string, [RegExp, string][]> = {
     [/semi/i, "semi-recessed"],
     [/fully[- ]recessed|\brecess|flush/i, "recessed"],
     [/surface/i, "surface-mount"],
+  ],
+  door_frame_material: [
+    [/stainless/i, "stainless steel"],
+    [/steel|\bcrs\b/i, "steel"],
+    [/alumin/i, "aluminum"],
   ],
   door_material: [
     [/acrylic|plexi|lucite/i, "acrylic"],
@@ -131,7 +137,9 @@ export function normalizeRequirement(r: Requirement): Requirement[] {
     else if (/^(no|false|n)$/i.test(value.trim())) { value = false; operator = "eq"; }
   }
 
-  const base = { ...r, attribute, operator, value, unit };
+  // "Door material: stainless steel sheet" is the door itself; the glazing attribute holds acrylic or glass.
+  const attr = attribute === "door_material" && typeof value === "string" && /stainless|steel|alumin|metal|\bcrs\b/i.test(value) && !/acrylic|glass|polycarb/i.test(value) ? "door_frame_material" : attribute;
+  const base = { ...r, attribute: attr, operator, value, unit };
   if (attribute === "agent" && typeof value === "string") {
     const named = AGENT_BRAND.test(value);
     const chem = named ? undefined : CHEMISTRY.exec(value)?.[0];
@@ -166,9 +174,9 @@ export function normalizeRequirement(r: Requirement): Requirement[] {
     }
     return [{ ...base, value: [...new Set(strs.map((v) => canonEnum("agent", v)))] }];
   }
-  if (ENUM_CANON[attribute]) {
-    if (typeof value === "string") return [{ ...base, value: canonEnum(attribute, value) }];
-    if (Array.isArray(value)) return [{ ...base, value: [...new Set(value.map((v) => (typeof v === "string" ? canonEnum(attribute, v) : v)))] }];
+  if (ENUM_CANON[attr]) {
+    if (typeof value === "string") return [{ ...base, value: canonEnum(attr, value) }];
+    if (Array.isArray(value)) return [{ ...base, value: [...new Set(value.map((v) => (typeof v === "string" ? canonEnum(attr, v) : v)))] }];
   }
   return [base];
 }

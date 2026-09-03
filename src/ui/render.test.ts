@@ -40,6 +40,12 @@ describe("drawer renders the agent path (crash smoke test: server render, no eff
     for (const title of ["Spec review", "Recommendations", "Approvals", "Notes"]) expect(html).toContain(title);
     expect(html.match(/<details [^>]*class="sc-panel" open=""/g)?.length).toBe(4);
     expect(html).toContain("Doesn&#x27;t meet the spec");
+    expect(html).toContain('role="dialog"');
+    expect(html).toContain('aria-labelledby="sc-drawer-title"');
+    expect(html).toContain('id="sc-drawer-title"');
+    expect(html).toContain('scope="col"');
+    expect(html).toContain('scope="row"');
+    expect(html).toContain("Quantity for Buckeye 15.5 lb Halotron");
     expect(html).toContain("Matches the spec&#x27;s numbers. It isn&#x27;t the Amerex 398 the spec names, so it needs a substitution approval.");
     expect(html).toContain("Couldn&#x27;t check: agent chemistry, pressure gauge.");
     expect(html).toContain("Allowed by Alternate 3: one of each at every location.");

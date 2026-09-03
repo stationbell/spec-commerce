@@ -86,7 +86,7 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
     if (waitingLines.length > lastWaiting.current) {
       const panel = topRef.current?.getRootNode() as ShadowRoot | Document | null;
       const el = panel && "getElementById" in panel ? panel.getElementById("sc-approvals") : null;
-      if (el) { (el as HTMLDetailsElement).open = true; el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      if (el) { (el as HTMLDetailsElement).open = true; el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }
     }
     lastWaiting.current = waitingLines.length;
   }, [waitingLines.length]);
@@ -135,7 +135,8 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
             Meets {matrix.counts.satisfied} of {matrix.matches.length}.{matrix.counts.conflict > 0 ? ` Fails ${matrix.counts.conflict}.` : ""}{matrix.counts.unknown > 0 ? ` Couldn't check ${matrix.counts.unknown}.` : ""}
           </p>
           <table className="sc-table">
-            <thead><tr><th>Requirement</th><th>Spec asks</th><th>This product</th><th>Result</th></tr></thead>
+            <caption className="sc-visually-hidden">This product checked against each requirement</caption>
+            <thead><tr><th scope="col">Requirement</th><th scope="col">Spec asks</th><th scope="col">This product</th><th scope="col">Result</th></tr></thead>
             <tbody>{matrix.matches.map((m) => <ReqTr key={m.requirementId} m={m} r={reqById.get(m.requirementId)} />)}</tbody>
           </table>
           {alternatives.length > 0 && (
@@ -284,7 +285,7 @@ function WaitingLine({ l, p, store }: { l: { id: string; sku: string; quantity: 
       <div className="sc-linemain">
         <b>{p?.name ?? l.sku}</b>
         <span>
-          <input className="sc-qty" type="number" min={1} max={999} value={qtyText} aria-label="Quantity"
+          <input className="sc-qty" type="number" min={1} max={999} step={1} value={qtyText} aria-label={`Quantity for ${p?.name ?? l.sku}`}
             onChange={(e) => commitQty(e.target.value)}
             onBlur={() => setQtyText(String(l.quantity))} />
           {l.unit}{["schedule", "drawing", "takeoff"].includes(l.quantitySource.kind) ? ` · quantity from ${l.quantitySource.kind}${l.quantitySource.sheet ? ` ${l.quantitySource.sheet}` : ""}` : l.quantitySource.kind === "room_count" ? " · quantity from the room count" : ""}{p?.priceCents != null ? ` · ${formatCents(p.priceCents)} each` : ""}
@@ -327,7 +328,7 @@ function Head({ title, sub, toolsOn, connected, onClose }: { title: string; sub:
   return (
     <div className="sc-head">
       <div>
-        <h2>{title}</h2>
+        <h2 id="sc-drawer-title">{title}</h2>
         <div className="sc-sub">{sub}</div>
       </div>
       <span className={`sc-tools ${toolsOn ? (connected ? "live" : "on") : ""}`} title={toolsOn ? (connected ? "An agent has used this page's WebMCP tools" : "This page registered WebMCP tools; an agent in this browser can use them") : "This browser does not expose WebMCP"}>
@@ -512,8 +513,8 @@ function AddToQuote({ store, catalog, skus }: { store: AppStore; catalog: Produc
   };
   return (
     <span className="sc-addrow sc-noprint">
-      <input className="sc-qty" type="number" min={1} max={999} value={qty} onChange={(e) => setQty(e.target.value)} aria-label="Quantity" />
-      <button type="button" className="sc-btn small" onClick={add}>{missing.length < skus.length ? "Add the rest to quote request" : "Add to quote request"}</button>
+      <input className="sc-qty" type="number" min={1} max={999} step={1} value={qty} onChange={(e) => setQty(e.target.value)} aria-label={`Quantity for ${skus.map((sku) => catalog.find((p) => p.sku === sku)?.name ?? sku).join(" and ")}`} />
+      <button type="button" className="sc-btn primary small" onClick={add}>{missing.length < skus.length ? "Add the rest to quote request" : "Add to quote request"}</button>
     </span>
   );
 }
@@ -532,7 +533,7 @@ function ReqTr({ m, r }: { m: RequirementMatch; r?: Requirement }) {
   const result = m.status === "satisfied" ? "Meets" : m.status === "conflict" ? "Fails" : "Couldn't check";
   return (
     <tr>
-      <td>{r ? cap(human(r.attribute)) : m.requirementId}{section && <small>{section}</small>}</td>
+      <th scope="row">{r ? cap(human(r.attribute)) : m.requirementId}{section && <small>{section}</small>}</th>
       <td>{asks}</td>
       <td>{have}<Ev e={m.evidence} /></td>
       <td className={`res ${m.status}`}>{result}{m.status === "unknown" && m.reason && m.reason !== "attribute_missing" && <small>{REASON[m.reason] ?? m.reason}</small>}</td>
@@ -544,7 +545,7 @@ function ReqTr({ m, r }: { m: RequirementMatch; r?: Requirement }) {
 function Panel({ id, title, status, children }: { id?: string; title: string; status?: string; children: ReactNode }) {
   return (
     <details id={id} className="sc-panel" open>
-      <summary className="sc-panel-head"><span className="sc-panel-title">{title}</span>{status ? <span className="sc-panel-status">{status}</span> : null}</summary>
+      <summary className="sc-panel-head"><span className="sc-panel-title" role="heading" aria-level={3}>{title}</span>{status ? <span className="sc-panel-status">{status}</span> : null}</summary>
       <div className="sc-panel-body">{children}</div>
     </details>
   );

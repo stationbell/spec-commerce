@@ -2,7 +2,7 @@
 :host {
   all: initial;
   --navy: #1F3E58; --tan: #F5F0E3; --yellow: #FCB848; --orange: #FC704A; --white: #FFFFFF;
-  --gray-1: #8E8E93; --gray-2: #AEAEB2; --gray-4: #D1D1D6; --gray-6: #F2F2F7;
+  --gray-1: #4A5568; --gray-2: #5C6B7A; --gray-4: #D1D1D6; --gray-6: #F2F2F7; /* gray-1/2 are text (≥ 4.5:1 on white); gray-4/6 are borders and fills */
   /* Chakra default scales the site uses for badges */
   --green-100: #C6F6D5; --green-800: #22543D; --green-600: #2F855A;
   --red-100: #FED7D7; --red-800: #822727; --red-500: #E53E3E;
@@ -223,3 +223,15 @@ details.sc-details > summary + * { margin-top: 8px; }
 .sc-addrow .sc-qty { width: 56px; height: 34px; }
 button.sc-btn.small { padding: 6px 12px; font-size: 14px; line-height: 20px; }
 .sc-added { display: inline-block; margin-top: 10px; font: 500 14px/20px var(--font-body); color: var(--navy); }
+
+/* ---- accessibility: targets, motion, hidden captions, row headers ---- */
+.sc-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+button.sc-link, details.sc-more > summary, .sc-foot details > summary, details.sc-details > summary { min-height: 24px; display: inline-flex; align-items: center; }
+details.sc-details > summary { display: flex; }
+.sc-table th[scope="row"] { text-align: left; font-weight: 400; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--gray-6); vertical-align: top; color: var(--navy); }
+.sc-table th[scope="row"] small { font-weight: 400; }
+.sc-launcher.hidden { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .sc-launcher, .sc-launcher.attention, .sc-dot.live, .sc-drawer, .sc-backdrop, .sc-panel-head::before { animation: none !important; transition: none !important; }
+  .sc-launcher:hover { transform: none; }
+}

@@ -1,6 +1,6 @@
 # Code citations (values and references only)
 
-Prepared for the Westgate Data Center project. These are the code rows the customer supplies; the
+These are the code rows the customer supplies; the
 product page checks the ones that are product facts and marks the rest as depending on the
 installation.
 

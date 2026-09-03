@@ -16,7 +16,7 @@ export function priceLine(line: QuoteLine, product: Product | undefined): Priced
   };
 }
 
-/** Only approved lines make it in (AGENTS.md invariant 7). */
+/** Only approved lines make it in; no tool can approve. */
 export function buildQuoteRequest(lines: QuoteLine[], products: Product[]): QuoteRequest {
   const bySku = new Map(products.map((p) => [p.sku, p]));
   const priced = lines.filter((l) => l.status === "approved").map((l) => priceLine(l, bySku.get(l.sku)));

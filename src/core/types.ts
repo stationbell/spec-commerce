@@ -1,4 +1,4 @@
-// Pure domain types. No React, no browser, no store, no merchant specifics (AGENTS.md invariant 2).
+// Pure domain types. No React, no browser, no store, no merchant specifics.
 
 export type EvidenceSource = {
   kind: "manufacturer_datasheet" | "merchant_product_page" | "merchant_guide";

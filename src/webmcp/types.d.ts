@@ -1,5 +1,5 @@
 // Minimal ambient typings for the experimental WebMCP browser API.
-// Source: https://webmachinelearning.github.io/webmcp/ (checked 2026-09-02) and PLAN.md's reference.
+// Source: https://webmachinelearning.github.io/webmcp/ (checked 2026-09-02).
 // Only `document.modelContext` is supported. The legacy `navigator.modelContext` proposal had a
 // different shape; it is declared as `unknown` so it can be logged, never called.
 

@@ -1,4 +1,4 @@
-// Two-level match model (PROJECT.md D7): RequirementMatch per requirement, ProductCandidate rollup.
+// Two-level match model: RequirementMatch per requirement, ProductCandidate rollup.
 
 import type { Product, ProductCandidate, ProductFamily, Requirement, RequirementMatch } from "./types";
 import { compare } from "./comparators";

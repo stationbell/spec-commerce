@@ -1,5 +1,5 @@
 // Bounded, domain-specific comparator for UL extinguisher class ratings such as "4A:80B:C".
-// Not a general UL comparator (PROJECT.md D9).
+// Not a general UL comparator; bounded to extinguisher class ratings on purpose.
 
 export type ClassRating = { A?: number; B?: number; C?: boolean; K?: boolean; D?: boolean };
 

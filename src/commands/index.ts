@@ -1,4 +1,4 @@
-// Commands are the ONLY mutation path (AGENTS.md invariant 1). React calls these directly;
+// Commands are the ONLY mutation path. React calls these directly;
 // capabilities call them after validating agent input. Nothing else touches the store.
 
 import { fitCheck, matchCatalog, matchProduct, resolveRequirements, resolveSpec as resolveSpecCore, type BasisOfDesign, type SpecOption } from "../core";

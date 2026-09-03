@@ -5,10 +5,9 @@ dist/
 .DS_Store
 *.local
 
-# Local-only planning/working docs — never published (see README for public architecture)
-PLAN.md
-PROJECT.md
-AGENTS.md
+# Local working notes stay local; only the README is published from the top level
+/*.md
+!/README.md
 build/
 
 # Editor, tool and deploy state

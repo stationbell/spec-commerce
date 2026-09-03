@@ -1,4 +1,4 @@
-// Thin adapter: capability -> WebMCP tool. Translates and nothing else (AGENTS.md invariant 3).
+// Thin adapter: capability -> WebMCP tool. Translates and nothing else.
 
 import { z } from "zod";
 import type { AgentCapability, CapabilityContext } from "../capabilities";

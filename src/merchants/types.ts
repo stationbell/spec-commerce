@@ -1,6 +1,6 @@
 import type { Product } from "../core/types";
 
-/** Makes the NEXT merchant install cheap. Not a runtime multi-merchant registry (PROJECT.md D2). */
+/** Makes the NEXT merchant install cheap. Not a runtime multi-merchant registry. */
 export type MerchantAdapter = {
   id: string;
   name: string;

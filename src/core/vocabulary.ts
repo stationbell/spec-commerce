@@ -1,6 +1,6 @@
 // Vocabulary for requirements written by an agent. Deterministic aliases only: an attribute name or
 // value the tables do not know passes through untouched and is answered honestly downstream
-// (not a product attribute, unresolved, or conflict), never guessed. No AI here (AGENTS.md 5).
+// (not a product attribute, unresolved, or conflict), never guessed. No AI here.
 
 import type { ProductFamily, Requirement, RequirementOperator } from "./types";
 

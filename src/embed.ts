@@ -23,7 +23,7 @@ const mountSpec = script?.dataset.mount;
 const layout: "drawer" | "inline" = script?.dataset.layout === "inline" ? "inline" : "drawer";
 
 const store = createAppStore();
-const merchant = usmadesupply; // one install serves one merchant (PROJECT.md D1)
+const merchant = usmadesupply; // one install serves one merchant
 const ctx = { store, catalog: merchant.catalog };
 
 function placeMount(): HTMLElement {

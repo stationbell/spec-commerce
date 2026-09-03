@@ -1,6 +1,6 @@
 # Sheet A-601 — Fire Extinguisher Schedule (excerpt)
 
-**Project:** Westgate Data Center, Building 1 · Level 1 · Issue: Permit set, 2026-08-14
+**Project:** · Level 1 · **Issue:**
 
 | Tag | Item | Rating (min) | Qty | Unit | Locations | Mounting |
 |---|---|---|---|---|---|---|

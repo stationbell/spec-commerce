@@ -17,7 +17,7 @@ export type AppState = {
   /** Same-family SKUs in the snapshot with no KNOWN conflict against the supplied requirements. */
   alternatives: { sku: string; counts: ProductCandidate["counts"] }[];
   /** forSku: the product the fit was run for — the page's product unless a tool asked for another unit on this site. */
-  compatible: { lookingFor: ProductFamily; forSku?: string; candidates: CompatibleCandidate[] } | null;
+  compatible: { lookingFor: ProductFamily; forSku?: string; requirements: Requirement[]; candidates: CompatibleCandidate[] } | null;
   /** Catalog-wide answer to "what satisfies these requirements?" */
   resolution: Resolution | null;
   /** Structured spec (basis of design + alternates) resolved across the catalog. */

@@ -360,7 +360,9 @@ export function ReqRow({ m, r }: { m: RequirementMatch; r?: Requirement }) {
   );
 }
 
-function FitCard({ compatible, bySku, product, store, catalog }: { compatible: { lookingFor: string; forSku?: string; candidates: CompatibleCandidate[] }; bySku: (s: string) => Product | undefined; product: Product; store: AppStore; catalog: Product[] }) {
+function FitCard({ compatible, bySku, product, store, catalog }: { compatible: { lookingFor: string; forSku?: string; requirements: Requirement[]; candidates: CompatibleCandidate[] }; bySku: (s: string) => Product | undefined; product: Product; store: AppStore; catalog: Product[] }) {
+  const byId = new Map(compatible.requirements.map((r) => [r.id, r]));
+  const unchecked = (c: CompatibleCandidate) => c.candidate.matches.filter((m) => m.status === "unknown" && m.reason !== "pair_check_required").map((m) => human(byId.get(m.requirementId)?.attribute ?? m.requirementId));
   const good = compatible.candidates.filter((c) => c.fit?.status === "satisfied" && c.candidate.counts.conflict === 0);
   const rest = compatible.candidates.filter((c) => !good.includes(c));
   const other = compatible.forSku && compatible.forSku !== product.sku ? bySku(compatible.forSku) : undefined;
@@ -377,7 +379,7 @@ function FitCard({ compatible, bySku, product, store, catalog }: { compatible: {
     <div className="sc-sub">
       <h4>{title}</h4>
       <ul className="sc-list sc-recs">
-        {good.map((c) => { const p = bySku(c.sku); return <li key={c.sku}><span className="sc-thumbs"><Thumb p={p} /></span><span className="sc-grow"><a href={p?.url} target="_blank" rel="noreferrer">{p?.name ?? c.sku}</a><span className="sc-line">{cap(fitWords(c))}.{(() => { const n = c.candidate.matches.filter((m) => m.status === "unknown" && m.reason !== "pair_check_required").length; return n > 0 ? ` ${n} requirement${n === 1 ? "" : "s"} couldn't be checked.` : ""; })()}</span><AddToQuote store={store} catalog={catalog} skus={[c.sku]} /></span><span className="sc-amt">{p?.priceCents != null ? formatCents(p.priceCents) : ""}</span></li>; })}
+        {good.map((c) => { const p = bySku(c.sku); return <li key={c.sku}><span className="sc-thumbs"><Thumb p={p} /></span><span className="sc-grow"><a href={p?.url} target="_blank" rel="noreferrer">{p?.name ?? c.sku}</a><span className="sc-line">{cap(fitWords(c))}.{(() => { const u = unchecked(c); return u.length ? ` Couldn't check: ${u.join(", ")}.` : ""; })()}</span><AddToQuote store={store} catalog={catalog} skus={[c.sku]} /></span><span className="sc-amt">{p?.priceCents != null ? formatCents(p.priceCents) : ""}</span></li>; })}
         {good.length === 0 && <li><Dot s="conflict" /><span>Nothing on this site both fits and meets the cabinet requirements.</span></li>}
       </ul>
       {rest.length > 0 && (

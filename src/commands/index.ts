@@ -55,7 +55,7 @@ export function findCompatible(store: AppStore, catalog: Product[], lookingFor: 
   // fit conflicts sink; unknown fit sits between
   const fitOrder = (c: CompatibleCandidate) => (c.fit?.status === "satisfied" ? 0 : c.fit?.status === "unknown" ? 1 : 2);
   candidates.sort((a, b) => fitOrder(a) - fitOrder(b) || a.candidate.counts.conflict - b.candidate.counts.conflict || a.candidate.counts.unknown - b.candidate.counts.unknown);
-  store.setState({ compatible: { lookingFor, forSku: product.sku, candidates } });
+  store.setState({ compatible: { lookingFor, forSku: product.sku, requirements, candidates } });
   log(store, by, `found ${candidates.length} ${lookingFor.replace(/_/g, " ")} candidate(s) for ${product.sku}; ${candidates.filter((c) => c.fit?.status === "satisfied" && c.candidate.counts.conflict === 0).length} fit with no conflicts`);
   return candidates;
 }

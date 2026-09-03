@@ -10,12 +10,16 @@ export type Layout = "drawer" | "inline";
  * drawer (default): a launcher in the corner and a panel that slides over the page; the merchant's
  * layout does not move. inline: the panel sits in the page where the mount element is.
  */
-export function mount(target: HTMLElement, props: AppProps, layout: Layout = "drawer"): void {
+export type MountHandle = { unmount(): void };
+
+export function mount(target: HTMLElement, props: AppProps, layout: Layout = "drawer"): MountHandle {
   const shadow = target.shadowRoot ?? target.attachShadow({ mode: "open" });
   const style = document.createElement("style");
   style.textContent = styles;
   const container = document.createElement("div");
   container.className = layout === "inline" ? "sc-root" : "sc-overlay";
   shadow.replaceChildren(style, container);
-  createRoot(container).render(layout === "inline" ? <App {...props} /> : <Shell {...props} />);
+  const root = createRoot(container);
+  root.render(layout === "inline" ? <App {...props} /> : <Shell {...props} />);
+  return { unmount: () => { root.unmount(); shadow.replaceChildren(); } };
 }

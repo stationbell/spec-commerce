@@ -204,7 +204,7 @@ export function readBasisOfDesign(text: string): { manufacturer: string; model: 
 
 /** The product part of a basis-of-design line: '"HALOTRON I, #398" by Amerex Corporation' | 'Amerex Model 398 (HALOTRON I)' | 'Amerex #398'. */
 export function readBasisOfDesignValue(value: string): { manufacturer: string; model: string } | null {
-  const rest = value.replace(/[“”]/g, '"').replace(/^\d+[.)]\s*/, "").replace(/^[A-Za-z][.)]\s+/, "").trim();
+  const rest = value.replace(/[“”]/g, '"').replace(/^\d+[.)]\s*/, "").replace(/^[A-Za-z][.)]\s+/, "").trim().replace(/\s+/g, " ").slice(0, 300); // a product designation is short; this bounds the two lenient patterns below
   if (!rest) return null;
   const modelFrom = (s: string) => (/#\s*([A-Za-z0-9-]+)/.exec(s)?.[1] ?? /\b(?:Model|No\.?)\s*#?\s*([A-Za-z0-9-]+)/i.exec(s)?.[1] ?? s.replace(/["()]/g, "").trim().split(/[,\s]+/).pop() ?? s).replace(/^#/, "");
   const by = /^(.*?)\s+by\s+([A-Z][A-Za-z&.\- ]+?)(?:\s+(?:Corporation|Corp\.?|Inc\.?|Co\.?|LLC))?\s*[.;,]?\s*(?:\(|$)/i.exec(rest);
@@ -218,11 +218,20 @@ export function readBasisOfDesignValue(value: string): { manufacturer: string; m
 // Text preparation: sections, then an outline of items
 // ---------------------------------------------------------------------------------------------
 
+const MAX_OPTIONS = 8;
+const MAX_LINES = 600;
+const MAX_LINE_CHARS = 2000;
+/** Normalized and bounded before any pattern runs: agents pass documents verbatim, and a crafted document must not stall the page.
+ *  Leading indentation stays (it carries outline depth, capped at 16); every other run of spaces or tabs becomes one space. */
 function clean(raw: string): string {
-  return raw
-    .replace(/\r/g, "").replace(/[“”]/g, '"').replace(/ /g, " ")
+  const lines = raw
+    .replace(/\r/g, "").replace(/[“”]/g, '"').replace(/ /g, " ")
     .replace(/^[ \t]*#+[ \t]+/gm, "")
-    .replace(/[ \t]+$/gm, "");
+    .replace(/(\S)[ \t]{2,}/g, "$1 ")
+    .replace(/^[ \t]{17,}/gm, (m) => m.slice(0, 16))
+    .replace(/[ \t]+$/gm, "")
+    .split("\n");
+  return lines.slice(0, MAX_LINES).map((l) => (l.length > MAX_LINE_CHARS ? l.slice(0, MAX_LINE_CHARS) : l)).join("\n");
 }
 
 /** When several numbered sections are pasted, the one about the family asked for. */
@@ -421,6 +430,10 @@ export function parseSpecText(raw: string, document = "Specification (as pasted)
   // when one is named, otherwise as their own clause.
   if (!options.some((o) => o.kind === "basis_of_design") && primary.length) {
     options.unshift({ id: "spec", label: tag ? `${tag} as specified` : "As specified", kind: "alternate", requirements: primary.map((r) => ({ ...r, id: rid("spec") })), source: { kind: "spec", document, text: head.slice(0, 300) } });
+  }
+  if (options.length > MAX_OPTIONS) {
+    notes.push(`Only the first ${MAX_OPTIONS} clauses were read; ${options.length - MAX_OPTIONS} more were left out.`);
+    options.splice(MAX_OPTIONS);
   }
   return { tag, options, primary, unparsed: [...new Set(unparsed)], notes: [...new Set(notes)] };
 }

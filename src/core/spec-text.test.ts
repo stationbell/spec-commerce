@@ -244,3 +244,18 @@ B. Container: steel cylinder with polyester powder coat.`);
     expect(p.options.every((o) => o.kind !== "basis_of_design")).toBe(true);
   });
 });
+
+describe("adversarial input", () => {
+  it("reads crafted whitespace in bounded time and caps what it emits", () => {
+    const pad = " ".repeat(5000);
+    let t0 = performance.now();
+    expect(readBasisOfDesignValue(`X${pad}by A${pad}!`)).toBeNull();
+    expect(performance.now() - t0).toBeLessThan(50);
+    const raw = `2.3 CLEAN-AGENT PORTABLE FIRE EXTINGUISHER\nA. Basis of Design: X${pad}by A${pad}!\nB. Alternate 1: Abc${pad}x\n` +
+      Array.from({ length: 40 }, (_, i) => `${String.fromCharCode(67 + (i % 20))}. Alternate ${i + 2}: UL-rated ${i + 1}-A:10-B:C clean agent`).join("\n");
+    t0 = performance.now();
+    const parsed = parseSpecText(raw);
+    expect(performance.now() - t0).toBeLessThan(250);
+    expect(parsed.options.length).toBeLessThanOrEqual(8);
+  });
+});

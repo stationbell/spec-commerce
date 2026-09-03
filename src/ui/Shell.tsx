@@ -36,14 +36,24 @@ export function Shell(props: AppProps) {
     if (waiting > 0) setOpen(true);
   }, [waiting]);
 
-  // Focus in on open, back out on close.
+  // Focus moves into the drawer only when the person opened it, and back out on close only if it moved.
+  // Mounting, and a drawer the agent opened, never take focus away from what the person was doing on the page.
+  const firstRun = useRef(true);
+  const openedByClick = useRef(false);
+  const movedFocus = useRef(false);
   useEffect(() => {
+    if (firstRun.current) { firstRun.current = false; return undefined; }
     if (open) {
+      if (!openedByClick.current) return undefined;
       const root = drawer.current?.getRootNode() as ShadowRoot | Document | undefined;
       openedFrom.current = (root && "activeElement" in root ? (root.activeElement as HTMLElement | null) : null) ?? launcher.current;
+      movedFocus.current = true;
       const t = setTimeout(() => (drawer.current?.querySelector<HTMLElement>(".sc-close") ?? drawer.current)?.focus(), reducedMotion() ? 0 : 220);
       return () => clearTimeout(t);
     }
+    openedByClick.current = false;
+    if (!movedFocus.current) return undefined;
+    movedFocus.current = false;
     const back = openedFrom.current && openedFrom.current.isConnected && openedFrom.current !== launcher.current ? openedFrom.current : launcher.current;
     back?.focus();
     return undefined;
@@ -75,7 +85,7 @@ export function Shell(props: AppProps) {
         ref={launcher}
         type="button"
         className={`sc-launcher ${waiting > 0 ? "attention" : ""} ${open ? "hidden" : ""}`}
-        onClick={() => setOpen(true)}
+        onClick={() => { openedByClick.current = true; setOpen(true); }}
         aria-label={label}
         aria-haspopup="dialog"
         aria-expanded={open}

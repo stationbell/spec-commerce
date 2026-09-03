@@ -2,8 +2,8 @@
 // and registers WebMCP tools on the merchant's origin.
 
 import { createAppStore } from "./store/store";
-import { mount } from "./ui/mount";
-import { registerCapabilities } from "./webmcp/register";
+import { mount, type MountHandle } from "./ui/mount";
+import { registerCapabilities, unregisterCapabilities } from "./webmcp/register";
 import { capabilities } from "./capabilities";
 import { usmadesupply } from "./merchants/usmadesupply";
 import * as commands from "./commands";
@@ -54,7 +54,7 @@ function boot(): void {
   const product = merchant.catalog.find((p) => p.sku === sku) ?? null;
   if (product) commands.loadProduct(store, product);
   else commands.log(store, "system", `no product on this page that the ${merchant.name} snapshot knows${sku ? ` (${sku})` : ""}`);
-  mount(
+  handle = mount(
     target,
     {
       store,
@@ -67,6 +67,7 @@ function boot(): void {
   );
   // Register tools only when the page has a product; otherwise there is nothing to be about.
   if (product) void registerCapabilities(capabilities, ctx);
+  watchForLeaving();
   // Diagnostics, off by default. On only with data-debug on the tag or ?sc-debug in the URL:
   // deep-cloned snapshots and tool metadata, nothing that can mutate.
   const debug = script?.dataset.debug !== undefined || new URLSearchParams(location.search).has("sc-debug");
@@ -77,6 +78,37 @@ function boot(): void {
       capabilities.map((c) => Object.freeze({ id: c.id, title: c.title, effect: c.effect, trust: c.trust })),
     ),
   });
+}
+
+let handle: MountHandle | null = null;
+const bootPath = location.pathname.replace(/\/$/, "");
+let stopWatching: (() => void) | null = null;
+
+/**
+ * The panel and its tools are about one product page. On a site that navigates without reloading
+ * (a single-page app), leaving that page takes both down: the tools unregister, the panel unmounts and
+ * its element goes. Coming back needs a page load; nothing re-mounts on its own.
+ */
+function watchForLeaving(): void {
+  const check = () => { if (location.pathname.replace(/\/$/, "") !== bootPath) teardown(); };
+  const nav = (window as unknown as { navigation?: EventTarget }).navigation;
+  if (nav && typeof nav.addEventListener === "function") {
+    nav.addEventListener("currententrychange", check);
+    stopWatching = () => nav.removeEventListener("currententrychange", check);
+  } else {
+    const id = setInterval(check, 1000);
+    window.addEventListener("popstate", check);
+    stopWatching = () => { clearInterval(id); window.removeEventListener("popstate", check); };
+  }
+}
+
+function teardown(): void {
+  stopWatching?.();
+  stopWatching = null;
+  unregisterCapabilities(store);
+  handle?.unmount();
+  handle = null;
+  document.getElementById("spec-commerce")?.remove();
 }
 
 /** Nothing in here may ever surface as an error on the merchant's page. */

@@ -106,3 +106,11 @@ export async function registerCapabilities(caps: AgentCapability<any, any>[], ct
   commands.log(ctx.store, "system", `page tools on: ${registered.join(", ")}`);
 }
 
+/** Unregisters every tool (the registration signal aborts) and records that the page's tools are off. */
+export function unregisterCapabilities(store: CapabilityContext["store"]): void {
+  if (!controller) return;
+  controller.abort();
+  controller = null;
+  commands.setWebMcpInfo(store, { api: "none", tools: [] });
+  commands.log(store, "system", "page tools off: left the page they were about");
+}

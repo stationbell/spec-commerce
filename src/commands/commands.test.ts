@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { createAppStore } from "../store/store";
-import { addNote, approveQuoteLine, checkRequirements, findCompatible, loadProduct, proposeQuoteLines, rejectQuoteLine, reset, setLineQuantity } from "./index";
+import { addNote, approveQuoteLine, checkRequirements, findCompatible, loadProduct, proposeQuoteLines, rejectQuoteLine, reset, resolve, resolveSpec, setLineQuantity, setWorking } from "./index";
 import { CATALOG, HALOTRON_11 } from "../merchants/usmadesupply/catalog";
 import { DEMO_REQUIREMENTS, SPEC_REQUIREMENTS } from "../demo/requirements";
+import { CODE_REQUIREMENTS, SPEC_CABINET, SPEC_EXTINGUISHER } from "../demo/requirements";
 
 const schedule = { kind: "schedule" as const, document: "Fire Extinguisher Schedule", sheet: "A-601" };
 
@@ -64,5 +65,39 @@ describe("commands", () => {
     reset(store);
     expect(store.getState().quoteLines).toEqual([]);
     expect(store.getState().product?.sku).toBe("BE-71100");
+  });
+});
+
+describe("the agent's calls add up", () => {
+  it("a cabinet answer, an extinguisher answer, a product check and a fit all stay on the panel together", () => {
+    const store = createAppStore();
+    loadProduct(store, HALOTRON_11);
+    resolve(store, CATALOG, "fire_extinguisher_cabinet", SPEC_CABINET.primary, "agent");
+    expect(store.getState().other?.family).toBe("fire_extinguisher_cabinet");
+    resolveSpec(store, CATALOG, "portable_fire_extinguisher", SPEC_EXTINGUISHER.options, "agent");
+    expect(store.getState().other?.resolution).not.toBeNull(); // the cabinet answer is still there
+    expect(store.getState().specResolution).not.toBeNull();
+    checkRequirements(store, CATALOG, [...SPEC_EXTINGUISHER.primary, ...CODE_REQUIREMENTS.filter((r) => r.appliesTo === "portable_fire_extinguisher")], "agent");
+    expect(store.getState().specResolution).not.toBeNull(); // a product check never takes a catalog answer down
+    expect(store.getState().other?.resolution).not.toBeNull();
+    expect(store.getState().matrix).not.toBeNull();
+    findCompatible(store, CATALOG, "fire_extinguisher_cabinet", SPEC_CABINET.primary, "agent");
+    resolveSpec(store, CATALOG, "portable_fire_extinguisher", SPEC_EXTINGUISHER.options, "agent");
+    expect(store.getState().matrix).not.toBeNull(); // and a catalog answer never takes the product check down
+    expect(store.getState().compatible).not.toBeNull();
+    // requirements accumulate by id, so every row keeps its name
+    const ids = store.getState().requirements.map((r) => r.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.length).toBeGreaterThanOrEqual(SPEC_EXTINGUISHER.primary.length);
+    // a flat answer for the page's own family still replaces its structured one, in the same section
+    resolve(store, CATALOG, "portable_fire_extinguisher", SPEC_EXTINGUISHER.primary, "agent");
+    expect(store.getState().specResolution).toBeNull();
+    expect(store.getState().resolution).not.toBeNull();
+    expect(store.getState().other?.resolution).not.toBeNull();
+  });
+  it("working counts read and query calls and never goes below zero", () => {
+    const store = createAppStore();
+    setWorking(store, 1); setWorking(store, 1); expect(store.getState().working).toBe(2);
+    setWorking(store, -1); setWorking(store, -1); setWorking(store, -1); expect(store.getState().working).toBe(0);
   });
 });

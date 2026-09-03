@@ -19,7 +19,7 @@ export function Shell(props: AppProps) {
   const webmcp = useStore(store, (s) => s.webmcp);
   const waiting = useStore(store, (s) => s.quoteLines.filter((l) => l.status === "proposed").length);
   const activity = useStore(store, (s) => s.log.length);
-  const hasResults = useStore(store, (s) => !!(s.matrix || s.resolution || s.specResolution || s.compatible || s.quoteLines.length));
+  const hasResults = useStore(store, (s) => !!(s.matrix || s.resolution || s.specResolution || s.other || s.compatible || s.quoteLines.length));
   const [open, setOpen] = useState(false);
   const lastAgentActivity = useRef(0);
   const launcher = useRef<HTMLButtonElement>(null);

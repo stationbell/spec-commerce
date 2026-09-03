@@ -266,3 +266,9 @@ details.sc-details > summary { display: flex; }
 details.sc-details > summary::before, details.sc-more > summary::before, .sc-foot details > summary::before { content: ""; flex: none; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); margin: 0 10px 1px 1px; transition: transform .15s ease; }
 details.sc-details[open] > summary::before, details.sc-more[open] > summary::before, .sc-foot details[open] > summary::before { transform: rotate(45deg); margin-bottom: 3px; }
 details.sc-details > summary:focus-visible, details.sc-more > summary:focus-visible, .sc-foot details > summary:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; border-radius: 2px; }
+
+/* ---- while the agent's calls are in flight ---- */
+.sc-working { margin: 0 0 10px; font-size: 14px; line-height: 20px; color: var(--gray-1); }
+.sc-working::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: var(--navy); margin: 0 8px 1px 0; vertical-align: middle; animation: sc-working 1.2s ease-in-out infinite; }
+@keyframes sc-working { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sc-working::before { animation: none; opacity: .6; } }

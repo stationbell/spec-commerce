@@ -157,7 +157,7 @@ A few rules the code keeps. Matching is deterministic; there is no model in the 
 
 ```
 pnpm install
-pnpm test          # 84 tests
+pnpm test          # 87 tests
 pnpm build         # bundle to build/, assemble dist/
 pnpm preview       # http://localhost:4173
 ```

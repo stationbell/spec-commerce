@@ -6,6 +6,9 @@ export type LogEntry = { at: string; source: "agent" | "human" | "system"; messa
 export type WebMcpInfo = { api: "document" | "none"; tools: string[] };
 
 export type CompatibleCandidate = { sku: string; candidate: ProductCandidate; fit: FitResult | null };
+export type SpecOptionMeta = { id: string; label: string; kind: string; source?: Requirement["source"] };
+/** Catalog answers for the other family (cabinets on an extinguisher page), kept apart so they never replace the page family's. */
+export type OtherFamilyAnswer = { family: ProductFamily; requirements: Requirement[]; resolution: Resolution | null; specResolution: SpecResolution | null; specOptions: SpecOptionMeta[] };
 
 export type AppState = {
   /** The product this page is about. Set once at boot by the merchant adapter. */
@@ -22,11 +25,14 @@ export type AppState = {
   resolution: Resolution | null;
   /** Structured spec (basis of design + alternates) resolved across the catalog. */
   specResolution: SpecResolution | null;
-  specOptions: { id: string; label: string; kind: string; source?: Requirement["source"] }[];
+  specOptions: SpecOptionMeta[];
   /** Every requirement inside the structured spec (clauses and slots), for display lookups. */
   specRequirements: Requirement[];
   /** The agent's own notes about the documents. Displayed as text, attributed to the agent. */
   specIssues: string[];
+  other: OtherFamilyAnswer | null;
+  /** Agent read and query calls in flight, each kept a few seconds after it returns, so the panel can say the agent is still working. */
+  working: number;
   quoteLines: QuoteLine[];
   /** Notes the person left for the agent, newest last. */
   notes: PersonNote[];
@@ -45,6 +51,8 @@ export const initialState = (): AppState => ({
   specOptions: [],
   specRequirements: [],
   specIssues: [],
+  other: null,
+  working: 0,
   quoteLines: [],
   notes: [],
   log: [],

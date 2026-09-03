@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useStore } from "zustand";
 import * as commands from "../commands";
 import { buildQuoteRequest, formatCents } from "../core";
-import type { EvidenceSource, Product, ProductCandidate, Requirement, RequirementMatch } from "../core/types";
+import type { EvidenceSource, Product, ProductCandidate, ProductFamily, Requirement, RequirementMatch } from "../core/types";
 import { CODE_REQUIREMENTS, SPEC_CABINET, SPEC_EXTINGUISHER } from "../demo/requirements";
 import type { AppState, AppStore, CompatibleCandidate } from "../store/store";
 
@@ -19,6 +19,7 @@ const REASON: Record<string, string> = {
 };
 const OP: Record<string, string> = { eq: "", ne: "not", gte: "at least", lte: "at most", one_of: "one of", not_one_of: "not", meets_rating: "at least", is_true: "" };
 const SOURCE_WORD: Record<Requirement["source"]["kind"], string> = { spec: "spec", code: "code", schedule: "schedule" };
+const FAMILY_PLURAL: Record<ProductFamily, string> = { portable_fire_extinguisher: "Extinguishers", fire_extinguisher_cabinet: "Cabinets" };
 
 const words = (attr: string) => attr.replace(/_in$/, " (in)").replace(/_lb$/, " (lb)").replace(/_gal$/, " (gal)").replace(/_/g, " ");
 /** Plain names for the verdict card. Anything not listed falls back to the attribute's words. */
@@ -68,6 +69,8 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
   const specOptions = useStore(store, (s) => s.specOptions);
   const specIssues = useStore(store, (s) => s.specIssues);
   const specRequirements = useStore(store, (s) => s.specRequirements);
+  const other = useStore(store, (s) => s.other);
+  const working = useStore(store, (s) => s.working);
   const quoteLines = useStore(store, (s) => s.quoteLines);
   const notes = useStore(store, (s) => s.notes);
   const log = useStore(store, (s) => s.log);
@@ -75,7 +78,7 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
   const topRef = useRef<HTMLDivElement>(null);
 
   const bySku = (s: string) => catalog.find((p) => p.sku === s);
-  const reqById = new Map([...requirements, ...specRequirements].map((r) => [r.id, r]));
+  const reqById = new Map([...requirements, ...specRequirements, ...(other?.requirements ?? [])].map((r) => [r.id, r]));
   const quote = buildQuoteRequest(quoteLines, catalog);
   const toolsOn = webmcp.api !== "none";
   const waitingLines = quoteLines.filter((l) => l.status === "proposed");
@@ -104,10 +107,10 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
     const mine = product.family === "portable_fire_extinguisher" ? SPEC_EXTINGUISHER : SPEC_CABINET;
     const theirs = product.family === "portable_fire_extinguisher" ? SPEC_CABINET : SPEC_EXTINGUISHER;
     commands.resolveSpec(store, catalog, product.family, mine.options, "human", mine.notes);
-    commands.checkRequirements(store, catalog, [...mine.primary, ...CODE_REQUIREMENTS.filter((r) => r.appliesTo === product.family)], "human", { keepResolution: true });
+    commands.checkRequirements(store, catalog, [...mine.primary, ...CODE_REQUIREMENTS.filter((r) => r.appliesTo === product.family)], "human");
     commands.findCompatible(store, catalog, otherFamily, theirs.primary, "human");
   };
-  const anything = !!(matrix || resolution || specResolution || compatible || quoteLines.length);
+  const anything = !!(matrix || resolution || specResolution || other || compatible || quoteLines.length);
   const attrName = (id: string) => human(reqById.get(id)?.attribute ?? id);
   /** What product data verified and what it could not, in words. */
   const verdictLine = (c: ProductCandidate) => {
@@ -117,15 +120,22 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
   };
   const amt = (s: string) => (bySku(s)?.priceCents != null ? formatCents(bySku(s)!.priceCents!) : "");
   const verdict = matrix || specResolution || resolution ? computeVerdict({ product, matrix, alternatives, specResolution, resolution, specOptions, bySku, verdictLine, attrName, reqById }) : null;
+  const otherPicks: Pick[] = other ? buildPicks({ specResolution: other.specResolution, resolution: other.resolution, specOptions: other.specOptions, attrName }) : [];
+  // The fit card answers the same question with the fit added, so once it exists it stands in for the plain catalog answer.
+  const showOther = !!other && !(compatible && compatible.lookingFor === other.family);
+  const fitFound = compatible ? compatible.candidates.filter((c) => c.fit?.status === "satisfied" && c.candidate.counts.conflict === 0).length : 0;
+  const found = (verdict?.others.length ?? 0) + fitFound + (showOther ? otherPicks.length : 0);
+  const recStatus = verdict || compatible || showOther ? `${found} found` : working > 0 ? "Checking…" : "None yet";
 
   return (
     <div>
       <Head title="Spec check" sub={`${product.name}${product.priceCents !== null ? `\u00a0·\u00a0${formatCents(product.priceCents)}` : ""}`} toolsOn={toolsOn} connected={log.some((e) => e.source === "agent")} onClose={onClose} />
       <div ref={topRef} />
 
-      <Panel title="Spec review" status={!verdict ? "Not checked yet" : verdict.tone === "conflict" ? "Doesn't meet the spec" : verdict.tone === "satisfied" ? "Meets the spec" : "Partly verified"}>
-        {!verdict && <p className="sc-empty2">Ask your agent about this product and your spec. The answer shows up here.</p>}
-        {!verdict && !anything && <button className="sc-link sc-noprint" onClick={loadDemo}>See the demo answer without an agent</button>}
+      <Panel title="Spec review" status={!verdict ? (working > 0 ? "Checking…" : "Not checked yet") : verdict.tone === "conflict" ? "Doesn't meet the spec" : verdict.tone === "satisfied" ? "Meets the spec" : "Partly verified"}>
+        {!verdict && working > 0 && <p className="sc-working">Your agent is checking this product against your spec.</p>}
+        {!verdict && working === 0 && <p className="sc-empty2">Ask your agent about this product and your spec. The answer shows up here.</p>}
+        {!verdict && !anything && working === 0 && <button className="sc-link sc-noprint" onClick={loadDemo}>See the demo answer without an agent</button>}
         {verdict && <p className="sc-lead">{verdict.head}</p>}
         {verdict && verdict.reasons.length > 0 && <ul className="sc-reasons">{verdict.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul>}
         {matrix && (
@@ -194,29 +204,21 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
         )}
       </Panel>
 
-      <Panel title="Recommendations" status={verdict || compatible ? `${(verdict?.others.length ?? 0) + (compatible ? compatible.candidates.filter((c) => c.fit?.status === "satisfied" && c.candidate.counts.conflict === 0).length : 0)} found` : "None yet"}>
-        {!verdict && !compatible && <p className="sc-empty2">What meets your spec on this site, and what fits it, shows up here.</p>}
+      <Panel title="Recommendations" status={recStatus}>
+        {working > 0 && <p className="sc-working">Your agent is still working. Results show up here as they come in.</p>}
+        {!verdict && !compatible && !showOther && working === 0 && <p className="sc-empty2">What meets your spec on this site, and what fits it, shows up here.</p>}
         {verdict && (
           <>
             <h4>{verdict.others.length ? "What meets the spec on this site" : verdict.onlySelf ? "This product is the only match on this site" : "Nothing on this site meets the spec"}</h4>
-            {verdict.others.length > 0 && (
-              <ul className="sc-list sc-recs">
-                {verdict.others.map((p) => (
-                  <li key={p.key}>
-                    <span className="sc-thumbs">{p.products.map((sk) => <Thumb key={sk} p={bySku(sk)} />)}</span>
-                    <span className="sc-grow">
-                      {p.products.map((sk, j) => <span key={sk}>{j > 0 && " + "}<a href={bySku(sk)?.url} target="_blank" rel="noreferrer">{bySku(sk)?.name ?? sk}</a></span>)}
-                      <span className="sc-line">{p.line}</span>
-                      {p.detail && <span className="sc-why">{p.detail}</span>}
-                      <AddToQuote store={store} catalog={catalog} skus={p.products} />
-                    </span>
-                    <span className="sc-amt">{p.products.map((sk) => (bySku(sk)?.priceCents != null ? formatCents(bySku(sk)!.priceCents!) : "")).filter(Boolean).join(" + ")}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {verdict.others.length > 0 && <PickList picks={verdict.others} bySku={bySku} store={store} catalog={catalog} />}
             {verdict.picksLen === 0 && verdict.searched && <p className="sc-hint">Every product of this kind on the site conflicts with at least one requirement. The spec review above says which.</p>}
           </>
+        )}
+        {showOther && other && (
+          <div className="sc-sub">
+            <h4>{otherPicks.length ? `${FAMILY_PLURAL[other.family]} that meet the spec` : `No ${FAMILY_PLURAL[other.family].toLowerCase()} on this site meet the spec`}</h4>
+            {otherPicks.length > 0 && <PickList picks={otherPicks} bySku={bySku} store={store} catalog={catalog} />}
+          </div>
         )}
         {compatible && <FitCard compatible={compatible} bySku={bySku} product={product} store={store} catalog={catalog} />}
       </Panel>
@@ -416,6 +418,53 @@ function Flagged({ notes }: { notes: string[] }) {
 
 type Pick = { key: string; products: string[]; line: string; detail: string };
 
+const clauseWord = (label?: string) => {
+  const m = /(alternate\s*\d+|basis of design)/i.exec(label ?? "");
+  return m ? (/^basis/i.test(m[1]!) ? "the specified model" : cap(m[1]!.toLowerCase().replace(/\s+/g, " "))) : "the spec";
+};
+
+/** What meets the spec on this site, from a catalog answer: one row per product or combination, in clause order, first mention wins. */
+function buildPicks({ specResolution, resolution, specOptions, attrName }: { specResolution: AppState["specResolution"]; resolution: AppState["resolution"]; specOptions: AppState["specOptions"]; attrName: (id: string) => string }): Pick[] {
+  const picks: Pick[] = [];
+  const add = (p: Pick) => { if (!picks.some((x) => x.key === p.key)) picks.push(p); };
+  if (specResolution) {
+    for (const o of specResolution.options) {
+      const clause = clauseWord(specOptions.find((x) => x.id === o.optionId)?.label);
+      const bod = o.basisOfDesign?.requested;
+      const couldnt = (c: ProductCandidate) => { const un = c.matches.filter((m) => m.status === "unknown").map((m) => attrName(m.requirementId)); return un.length ? ` Couldn't check: ${un.join(", ")}.` : ""; };
+      for (const c of o.permitted) add({ key: c.sku, products: [c.sku], line: o.kind === "basis_of_design" ? "The model the spec names." : `Meets ${clause}.`, detail: couldnt(c).trim() });
+      for (const c of o.technicalMatches) add({ key: c.sku, products: [c.sku], line: `Matches the spec's numbers. It isn't the ${bod ? `${bod.manufacturer} ${bod.model}` : "model"} the spec names, so it needs a substitution approval.`, detail: couldnt(c).trim() });
+      for (const a of o.assemblies ?? []) add({ key: a.products.join("+"), products: a.products, line: `Allowed by ${clause}: one of each at every location.`, detail: a.unresolved ? `${a.unresolved} requirement${a.unresolved === 1 ? "" : "s"} couldn't be checked.` : "" });
+      for (const c of o.possible) add({ key: c.sku, products: [c.sku], line: `No conflict with ${clause}.`, detail: couldnt(c).trim() });
+    }
+  } else if (resolution) {
+    const couldnt = (c: ProductCandidate) => { const un = c.matches.filter((m) => m.status === "unknown").map((m) => attrName(m.requirementId)); return un.length ? `Couldn't check: ${un.join(", ")}.` : ""; };
+    for (const c of resolution.matches) add({ key: c.sku, products: [c.sku], line: "Meets every requirement.", detail: couldnt(c) });
+    for (const c of resolution.possible) add({ key: c.sku, products: [c.sku], line: "No conflicts found.", detail: couldnt(c) });
+  }
+  return picks;
+}
+
+/** The rows under "what meets the spec": thumbnails, names, one line each, and the person's own add-to-quote control. */
+function PickList({ picks, bySku, store, catalog }: { picks: Pick[]; bySku: (s: string) => Product | undefined; store: AppStore; catalog: Product[] }) {
+  return (
+    <ul className="sc-list sc-recs">
+      {picks.map((p) => (
+        <li key={p.key}>
+          <span className="sc-thumbs">{p.products.map((sk) => <Thumb key={sk} p={bySku(sk)} />)}</span>
+          <span className="sc-grow">
+            {p.products.map((sk, j) => <span key={sk}>{j > 0 && " + "}<a href={bySku(sk)?.url} target="_blank" rel="noreferrer">{bySku(sk)?.name ?? sk}</a></span>)}
+            <span className="sc-line">{p.line}</span>
+            {p.detail && <span className="sc-why">{p.detail}</span>}
+            <AddToQuote store={store} catalog={catalog} skus={p.products} />
+          </span>
+          <span className="sc-amt">{p.products.map((sk) => (bySku(sk)?.priceCents != null ? formatCents(bySku(sk)!.priceCents!) : "")).filter(Boolean).join(" + ")}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** The answer in words, first: does this product meet the spec, and what on this site does. */
 function computeVerdict({ product, matrix, alternatives, specResolution, resolution, specOptions, bySku, verdictLine, attrName, reqById }: {
   product: Product;
@@ -429,10 +478,6 @@ function computeVerdict({ product, matrix, alternatives, specResolution, resolut
   attrName: (id: string) => string;
   reqById: Map<string, Requirement>;
 }) {
-  const clauseWord = (label?: string) => {
-    const m = /(alternate\s*\d+|basis of design)/i.exec(label ?? "");
-    return m ? (/^basis/i.test(m[1]!) ? "the specified model" : cap(m[1]!.toLowerCase().replace(/\s+/g, " "))) : "the spec";
-  };
   const reason = (m: RequirementMatch) => {
     const r = reqById.get(m.requirementId);
     if (!r) return m.detail ?? m.requirementId;
@@ -472,23 +517,9 @@ function computeVerdict({ product, matrix, alternatives, specResolution, resolut
   }
 
   // What does, on this site: one row per product or combination, in clause order, first mention wins.
-  const picks: Pick[] = [];
-  const add = (p: Pick) => { if (!picks.some((x) => x.key === p.key)) picks.push(p); };
-  if (specResolution) {
-    for (const o of specResolution.options) {
-      const clause = clauseWord(specOptions.find((x) => x.id === o.optionId)?.label);
-      const bod = o.basisOfDesign?.requested;
-      const couldnt = (c: ProductCandidate) => { const un = c.matches.filter((m) => m.status === "unknown").map((m) => attrName(m.requirementId)); return un.length ? ` Couldn't check: ${un.join(", ")}.` : ""; };
-      for (const c of o.permitted) add({ key: c.sku, products: [c.sku], line: o.kind === "basis_of_design" ? "The model the spec names." : `Meets ${clause}.`, detail: couldnt(c).trim() });
-      for (const c of o.technicalMatches) add({ key: c.sku, products: [c.sku], line: `Matches the spec's numbers. It isn't the ${bod ? `${bod.manufacturer} ${bod.model}` : "model"} the spec names, so it needs a substitution approval.`, detail: couldnt(c).trim() });
-      for (const a of o.assemblies ?? []) add({ key: a.products.join("+"), products: a.products, line: `Allowed by ${clause}: one of each at every location.`, detail: a.unresolved ? `${a.unresolved} requirement${a.unresolved === 1 ? "" : "s"} couldn't be checked.` : "" });
-      for (const c of o.possible) add({ key: c.sku, products: [c.sku], line: `No conflict with ${clause}.`, detail: couldnt(c).trim() });
-    }
-  } else if (resolution) {
-    const couldnt = (c: ProductCandidate) => { const un = c.matches.filter((m) => m.status === "unknown").map((m) => attrName(m.requirementId)); return un.length ? `Couldn't check: ${un.join(", ")}.` : ""; };
-    for (const c of resolution.matches) add({ key: c.sku, products: [c.sku], line: "Meets every requirement.", detail: couldnt(c) });
-    for (const c of resolution.possible) add({ key: c.sku, products: [c.sku], line: "No conflicts found.", detail: couldnt(c) });
-  } else if (matrix) {
+  const picks: Pick[] = buildPicks({ specResolution, resolution, specOptions, attrName });
+  if (!specResolution && !resolution && matrix) {
+    const add = (p: Pick) => { if (!picks.some((x) => x.key === p.key)) picks.push(p); };
     // A product check alone: the same-family products with no known conflict against the same requirements.
     for (const a of alternatives) add({ key: a.sku, products: [a.sku], line: a.counts.unknown ? "No conflicts found." : "Meets every requirement.", detail: a.counts.unknown ? `${a.counts.unknown} requirement${a.counts.unknown === 1 ? "" : "s"} couldn't be checked.` : "" });
   }

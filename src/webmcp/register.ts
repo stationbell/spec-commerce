@@ -5,6 +5,8 @@ import type { AgentCapability, CapabilityContext } from "../capabilities";
 import * as commands from "../commands";
 
 let controller: AbortController | null = null;
+/** How long the panel keeps saying "still working" after a read or query call returns, so short gaps between calls do not flicker. */
+const WORKING_GRACE_MS = 6000;
 
 export function detectModelContext(): { mc: ModelContext | null; legacyNavigator: boolean } {
   const mc = typeof document !== "undefined" && document.modelContext ? document.modelContext : null;
@@ -66,6 +68,9 @@ function toTool(cap: AgentCapability<any, any>, base: CapabilityContext): ModelC
         return { error: "invalid_input", tool: cap.id, issues };
       }
       commands.log(store, "agent", `call ${cap.id} ${summarize(parsed.data)}`);
+      // Reads and queries count as "working"; a call that waits for the person's click does not, since then the agent is waiting on them.
+      const counts = cap.effect === "read" || cap.effect === "query";
+      if (counts) commands.setWorking(store, 1);
       try {
         const result = await cap.execute(parsed.data, { store, catalog, signal });
         commands.log(store, "agent", `result ${cap.id} ${summarize(result)}`);
@@ -74,6 +79,8 @@ function toTool(cap: AgentCapability<any, any>, base: CapabilityContext): ModelC
         const error = { error: "execution_failed", tool: cap.id, message: e instanceof Error ? e.message : String(e) };
         commands.log(store, "system", `failed ${cap.id}: ${error.message}`);
         return error;
+      } finally {
+        if (counts) setTimeout(() => commands.setWorking(store, -1), WORKING_GRACE_MS);
       }
     },
   };

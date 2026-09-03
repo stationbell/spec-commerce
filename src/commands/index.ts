@@ -22,8 +22,13 @@ export function loadProduct(store: AppStore, product: Product): void {
   log(store, "system", `page product: ${product.sku} ${product.name}`);
 }
 
-/** Verify the page's product against supplied requirements. Replaces the previous matrix. */
-export function checkRequirements(store: AppStore, catalog: Product[], requirements: Requirement[], by: "agent" | "human", opts: { keepResolution?: boolean } = {}) {
+/** Requirements accumulate by id across calls, so every row the panel shows keeps its name; a new row with the same id wins. */
+function mergeRequirements(existing: Requirement[], incoming: Requirement[]): Requirement[] {
+  return [...existing.filter((r) => !incoming.some((n) => n.id === r.id)), ...incoming];
+}
+
+/** Verify the page's product against supplied requirements. Replaces the previous matrix and nothing else. */
+export function checkRequirements(store: AppStore, catalog: Product[], requirements: Requirement[], by: "agent" | "human") {
   const product = store.getState().product;
   if (!product) throw new Error("no product on this page");
   const matrix = matchProduct(product, requirements);
@@ -31,8 +36,8 @@ export function checkRequirements(store: AppStore, catalog: Product[], requireme
   const alternatives = matchCatalog(catalog, requirements, product.family)
     .filter((c) => c.sku !== product.sku && c.counts.conflict === 0 && c.status !== "invalid")
     .map((c) => ({ sku: c.sku, counts: c.counts }));
-  // A standalone check replaces any earlier catalog resolution: the drawer never mixes a new product check with old recommendations.
-  store.setState({ requirements, matrix, alternatives, ...(opts.keepResolution ? {} : { resolution: null, specResolution: null, specOptions: [], specRequirements: [], specIssues: [] }) });
+  // Only this product's row changes. Catalog answers already on the panel stay; the agent's calls add up, they never take each other down.
+  store.setState((s) => ({ requirements: mergeRequirements(s.requirements, requirements), matrix, alternatives }));
   log(store, by, `checked ${requirements.length} requirement(s): ${matrix.counts.satisfied} verified, ${matrix.counts.unknown} unresolved, ${matrix.counts.conflict} conflict`);
   return { matrix, alternatives };
 }
@@ -63,8 +68,14 @@ export function findCompatible(store: AppStore, catalog: Product[], lookingFor: 
 /** Catalog-wide: which products satisfy these requirements, which do not and why. */
 export function resolve(store: AppStore, catalog: Product[], family: ProductFamily, requirements: Requirement[], by: "agent" | "human", bod?: BasisOfDesign, specIssues: string[] = []) {
   const resolution = resolveRequirements(catalog, requirements, family, bod);
-  // One active resolution mode at a time: a flat resolve replaces any structured one.
-  store.setState({ resolution, specResolution: null, specOptions: [], specRequirements: [], specIssues, matrix: null, alternatives: [], requirements });
+  const page = store.getState().product;
+  if (page && family !== page.family) {
+    // The other family's answer has its own place; nothing about the page's family moves.
+    store.setState((s) => ({ other: { family, requirements, resolution, specResolution: null, specOptions: [] }, specIssues: specIssues.length ? specIssues : s.specIssues }));
+  } else {
+    // One catalog answer for the page's family at a time: a flat resolve replaces a structured one. The product check stays.
+    store.setState((s) => ({ resolution, specResolution: null, specOptions: [], specRequirements: [], specIssues: specIssues.length ? specIssues : s.specIssues, requirements: mergeRequirements(s.requirements, requirements) }));
+  }
   log(store, by, `resolved ${requirements.filter((r) => r.appliesTo === family).length} requirement(s) across ${catalog.filter((p) => p.family === family).length} ${family.replace(/_/g, " ")}s: ${resolution.matches.length} match, ${resolution.possible.length} possible, ${resolution.rejected.length} rejected${bod ? `; basis of design ${bod.manufacturer} ${bod.model} ${resolution.basisOfDesign?.carried ? "carried" : "not carried"}` : ""}`);
   return resolution;
 }
@@ -73,7 +84,14 @@ export function resolve(store: AppStore, catalog: Product[], family: ProductFami
 export function resolveSpec(store: AppStore, catalog: Product[], family: ProductFamily, options: SpecOption[], by: "agent" | "human", specIssues: string[] = []) {
   const specResolution = resolveSpecCore(catalog, options, family);
   const specRequirements = options.flatMap((o) => [...o.requirements, ...(o.slots ?? []).flatMap((sl) => sl.requirements)]);
-  store.setState({ specResolution, resolution: null, matrix: null, alternatives: [], specOptions: options.map((o) => ({ id: o.id, label: o.label, kind: o.kind, source: o.source })), specRequirements, specIssues });
+  const specOptions = options.map((o) => ({ id: o.id, label: o.label, kind: o.kind, source: o.source }));
+  const page = store.getState().product;
+  if (page && family !== page.family) {
+    store.setState((s) => ({ other: { family, requirements: specRequirements, resolution: null, specResolution, specOptions }, specIssues: specIssues.length ? specIssues : s.specIssues }));
+  } else {
+    // Replaces a flat answer for the page's family; the product check stays.
+    store.setState((s) => ({ specResolution, resolution: null, specOptions, specRequirements, specIssues: specIssues.length ? specIssues : s.specIssues }));
+  }
   const summary = specResolution.options.map((o) => `${o.optionId}: ${o.kind === "assembly" ? `${o.assemblies?.length ?? 0} assembl${(o.assemblies?.length ?? 0) === 1 ? "y" : "ies"}` : `${o.permitted.length} permitted, ${o.technicalMatches.length} technical match, ${o.rejected.length} rejected`}`).join("; ");
   log(store, by, `resolved spec (${options.length} clause${options.length === 1 ? "" : "s"}) across ${catalog.filter((p) => p.family === family).length} ${family.replace(/_/g, " ")}s: ${summary}${specIssues.length ? `; ${specIssues.length} issue(s) flagged` : ""}`);
   return specResolution;
@@ -180,6 +198,11 @@ export function addNote(store: AppStore, text: string, aboutLineId?: string): bo
 }
 
 /** Restores deterministic state for this page: the product and tool registration survive. */
+/** Counts agent read and query calls in flight; the panel says the agent is still working while it is above zero. */
+export function setWorking(store: AppStore, delta: number): void {
+  store.setState((s) => ({ working: Math.max(0, s.working + delta) }));
+}
+
 export function reset(store: AppStore): void {
   seq = 0;
   noteSeq = 0;

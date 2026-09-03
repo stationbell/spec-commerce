@@ -33,8 +33,8 @@ describe("the person adds a recommended product themselves", () => {
   });
 });
 
-describe("result slices never mix", () => {
-  it("a standalone check clears an earlier resolution; a resolution clears an earlier check", async () => {
+describe("result slices add up", () => {
+  it("a standalone check keeps an earlier resolution, and a resolution keeps an earlier check", async () => {
     const store = createAppStore();
     loadProduct(store, HALOTRON_11);
     const { checkRequirements, resolveSpec } = await import("./index");
@@ -43,12 +43,11 @@ describe("result slices never mix", () => {
     resolveSpec(store, CATALOG, "portable_fire_extinguisher", FE1_OPTIONS, "agent");
     expect(store.getState().specResolution).not.toBeNull();
     checkRequirements(store, CATALOG, DEMO_REQUIREMENTS, "agent");
-    expect(store.getState().specResolution).toBeNull();
-    expect(store.getState().matrix).not.toBeNull();
-    resolveSpec(store, CATALOG, "portable_fire_extinguisher", FE1_OPTIONS, "agent");
-    expect(store.getState().matrix).toBeNull();
-    checkRequirements(store, CATALOG, DEMO_REQUIREMENTS, "agent", { keepResolution: true });
     expect(store.getState().specResolution).not.toBeNull();
     expect(store.getState().matrix).not.toBeNull();
+    const before = store.getState().matrix;
+    resolveSpec(store, CATALOG, "portable_fire_extinguisher", FE1_OPTIONS, "agent");
+    expect(store.getState().matrix).toBe(before);
+    expect(store.getState().specResolution).not.toBeNull();
   });
 });

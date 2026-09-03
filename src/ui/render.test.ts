@@ -94,3 +94,36 @@ describe("drawer renders the agent path (crash smoke test: server render, no eff
     expect(html).toContain("Not submitted");
   });
 });
+
+describe("the panel while the agent works", () => {
+  it("shows a working state, then keeps every answer as the calls add up", async () => {
+    const { loadProduct, resolve, resolveSpec, findCompatible, setWorking } = await import("../commands");
+    const { SPEC_CABINET, SPEC_EXTINGUISHER } = await import("../demo/requirements");
+    const store = createAppStore(); loadProduct(store, HALOTRON_11);
+    const props = { merchant: "usmadesupply", project: "demo", catalog: CATALOG, tools: [] };
+    setWorking(store, 1);
+    let html = render(store, props);
+    expect(html).toContain("Checking…");
+    expect(html).toContain("still working");
+    expect(html).not.toContain("See the demo answer");
+    // the agent answers the cabinet clause first: it shows in its own section, nothing else moves
+    resolve(store, CATALOG, "fire_extinguisher_cabinet", SPEC_CABINET.primary, "agent");
+    html = render(store, props);
+    expect(html).toContain("Cabinets that meet the spec");
+    expect(html).toContain("JL Industries Embassy");
+    // then the extinguisher clause: the cabinet answer is still there
+    resolveSpec(store, CATALOG, "portable_fire_extinguisher", SPEC_EXTINGUISHER.options, "agent");
+    html = render(store, props);
+    expect(html).toContain("What meets the spec on this site");
+    expect(html).toContain("Buckeye 15.5 lb Halotron");
+    expect(html).toContain("Cabinets that meet the spec");
+    // the fit answer for cabinets stands in for the plain cabinet answer
+    findCompatible(store, CATALOG, "fire_extinguisher_cabinet", SPEC_CABINET.primary, "agent");
+    setWorking(store, -1);
+    html = render(store, props);
+    expect(html).toContain("Cabinets that fit this extinguisher");
+    expect(html).not.toContain("Cabinets that meet the spec");
+    expect(html).not.toContain("still working");
+    expect(html).toContain("Buckeye 15.5 lb Halotron");
+  });
+});

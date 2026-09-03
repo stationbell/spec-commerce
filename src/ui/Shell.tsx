@@ -65,13 +65,9 @@ export function Shell(props: AppProps) {
   const toolsOn = webmcp.api !== "none";
   const agentCalls = useStore(store, (s) => s.log.filter((e) => e.source === "agent").length);
   // Honest states: tools registered ≠ an agent has used them. "Connected" only after a real tool call.
-  const label = waiting > 0
-    ? `${waiting} line${waiting === 1 ? "" : "s"} waiting for you`
-    : !toolsOn
-      ? "WebMCP not available here"
-      : agentCalls > 0
-        ? `WebMCP connected${hasResults ? " · results" : ""}`
-        : `WebMCP active · ${webmcp.tools.length} tools`;
+  const tabLabel = waiting > 0 ? `${waiting} to approve` : "Spec check · WebMCP";
+  const state = !toolsOn ? "This browser does not expose WebMCP." : agentCalls > 0 ? `WebMCP connected, ${webmcp.tools.length} tools.` : `WebMCP active, ${webmcp.tools.length} tools.`;
+  const label = `${tabLabel}. ${state}`;
 
   return (
     <>
@@ -80,7 +76,7 @@ export function Shell(props: AppProps) {
         type="button"
         className={`sc-launcher ${waiting > 0 ? "attention" : ""} ${open ? "hidden" : ""}`}
         onClick={() => setOpen(true)}
-        aria-label={`Spec check: ${label}`}
+        aria-label={label}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="sc-drawer"
@@ -88,7 +84,8 @@ export function Shell(props: AppProps) {
         tabIndex={open ? -1 : 0}
         title={toolsOn ? "Spec check. An AI agent in this browser can verify this product against your specification and find what on this site meets it, using this page's tools." : "This browser does not expose WebMCP"}
       >
-        <span className="sc-tab-text">{waiting > 0 ? `${waiting} to approve` : "Spec check"}</span>
+        <span className={`sc-dot ${toolsOn ? (agentCalls > 0 ? "live" : "on") : ""}`} aria-hidden="true" />
+        <span className="sc-tab-text">{tabLabel}</span>
       </button>
       <div className={`sc-backdrop ${open ? "open" : ""}`} onClick={() => setOpen(false)} />
       <aside

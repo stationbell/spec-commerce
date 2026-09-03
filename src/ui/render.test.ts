@@ -68,7 +68,7 @@ describe("drawer renders the agent path (crash smoke test: server render, no eff
     ], "agent");
     html = render(store, props);
     expect(html.replace(/<!-- -->/g, "")).toContain("Your agent suggests 2 lines for the quote");
-    expect(html).toContain("2 lines waiting for you");
+    expect(html).toContain("2 to approve");
 
     const { approveQuoteLine, rejectQuoteLine } = await import("../commands");
     approveQuoteLine(store, lines[0]!.id);

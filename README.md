@@ -29,7 +29,9 @@ The page never guesses. If a requirement cannot be checked from product data, it
 1. Open the live demo in the ChatGPT desktop app's browser and put the chat in **Work** mode. Chat mode reads pages but does not use site tools. In Chrome, turn on the WebMCP flag first.
 2. Open the demo specification, [spec-10-44-00-excerpt.pdf](https://spec-commerce.stationbell.com/artifacts/spec-10-44-00-excerpt.pdf) (also in [artifacts/](artifacts/)). Copy sections 2.2 and 2.3 out of it, paste them into the chat, and type this above them:
 
-   > Here is our spec. Give sections 2.2 and 2.3 to this page's spec checker: does this product meet 2.3, what on this site does, and which cabinet fits it and meets 2.2? Then propose a quote for me to approve.
+   > Here is our spec. Give sections 2.2 and 2.3 to this page's spec checker. Does this product meet 2.3, and what on this site does?
+
+   Then, as follow-ups: "Ok, what about the cabinets?" and "Propose the 15.5 lb unit and that cabinet for a quote, six each, from the schedule." Three short turns work better than one long one.
 
    Paste the text rather than attaching the file. In ChatGPT's browser, an attached file stays in the chat's own file context and is not handed to a site's tools on its own, while text you type or paste is. ChatGPT may also ask you to approve sending the spec text to the page before it calls the checker; approve it. If "Approve for me" is on, it may decline on your behalf, so turn that off for this. The two sections are below if you want them without the PDF.
 

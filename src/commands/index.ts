@@ -75,7 +75,7 @@ export function resolveSpec(store: AppStore, catalog: Product[], family: Product
   const specRequirements = options.flatMap((o) => [...o.requirements, ...(o.slots ?? []).flatMap((sl) => sl.requirements)]);
   store.setState({ specResolution, resolution: null, matrix: null, alternatives: [], specOptions: options.map((o) => ({ id: o.id, label: o.label, kind: o.kind, source: o.source })), specRequirements, specIssues });
   const summary = specResolution.options.map((o) => `${o.optionId}: ${o.kind === "assembly" ? `${o.assemblies?.length ?? 0} assembl${(o.assemblies?.length ?? 0) === 1 ? "y" : "ies"}` : `${o.permitted.length} permitted, ${o.technicalMatches.length} technical match, ${o.rejected.length} rejected`}`).join("; ");
-  log(store, by, `resolved spec (${options.length} clause${options.length === 1 ? "" : "s"}) across ${catalog.filter((p) => p.family === family).length} ${family.replace(/_/g, " ")}s — ${summary}${specIssues.length ? `; ${specIssues.length} issue(s) flagged` : ""}`);
+  log(store, by, `resolved spec (${options.length} clause${options.length === 1 ? "" : "s"}) across ${catalog.filter((p) => p.family === family).length} ${family.replace(/_/g, " ")}s: ${summary}${specIssues.length ? `; ${specIssues.length} issue(s) flagged` : ""}`);
   return specResolution;
 }
 

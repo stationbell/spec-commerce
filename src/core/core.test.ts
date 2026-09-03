@@ -233,7 +233,7 @@ describe("resolveSpec: basis of design, alternates, assemblies", () => {
       { id: "s3", label: "co2", requirements: [mk("t3", "agent", "eq", "carbon dioxide")] },
     ] };
     const r = resolveSpec(cat, [opt], "portable_fire_extinguisher").options[0]!;
-    // s1 matches w1, w2, x1; s2 matches w1, w2; s3 matches c1 — distinct products per slot
+    // s1 matches w1, w2, x1; s2 matches w1, w2; s3 matches c1, so distinct products per slot
     expect(r.assemblies?.map((a) => a.products.join("+")).sort()).toEqual(["w1+w2+c1", "w2+w1+c1", "x1+w1+c1", "x1+w2+c1"].sort());
     expect(r.assembliesTruncated).toBe(false);
   });

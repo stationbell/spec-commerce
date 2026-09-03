@@ -165,12 +165,12 @@ export const WATER_25: Product = {
 };
 
 // ---------------------------------------------------------------------------------------------
-// Cabinets — interior ("tub") dimensions are the numbers that decide fit (see the USMS guide).
+// Cabinets: interior ("tub") dimensions are the numbers that decide fit (see the USMS guide).
 // ---------------------------------------------------------------------------------------------
 
 const CAB = "/safety/fire-extinguishers/cabinets/usms-marketplace/products/";
 const FIT_GUIDE = guide(
-  "US Made Supply: Fire Extinguisher Cabinet Selection Guide — Will it fit?",
+  "US Made Supply: Fire Extinguisher Cabinet Selection Guide (Will it fit?)",
   "/resources/guides/fire-extinguisher-cabinet-selection-guide",
   "cylinder diameter vs interior (tub) depth decides fit; an 11 lb Halotron is 7 in across and wants the 20 lb-class tub",
 );

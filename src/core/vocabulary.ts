@@ -157,7 +157,7 @@ export function normalizeRequirement(r: Requirement): Requirement[] {
     }
     if (chem) {
       // A blend designation is a specific chemistry. The category is what it implies; the blend itself is its own row,
-      // answered from product data or left unresolved — never rounded up to the category.
+      // answered from product data or left unresolved, never rounded up to the category.
       if (excluding) return [{ ...base, attribute: "agent_chemistry", operator: "not_one_of", value: [chem] }];
       return [{ ...base, value: category }, { ...base, id: `${r.id}-chemistry`, attribute: "agent_chemistry", operator: "eq", value: chem }];
     }

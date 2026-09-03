@@ -2,7 +2,7 @@
 // and by the deploy scripts. Never rewrites a published exact version: those live in releases/.
 //
 //   releases/spec-commerce/<version>/   frozen bundles, local build artifacts (gitignored; `pnpm release` adds one)
-//   releases/spec-commerce/pointers.json { "v1": "1.0.0" }  — what /spec-commerce/v1/ serves
+//   releases/spec-commerce/pointers.json { "v1": "1.0.0" }, what /spec-commerce/v1/ serves
 //
 //   dist/static/  every release at /spec-commerce/v<version>/ (immutable) + pointers (5-min)
 //   dist/site/    the host page pinned to v<package.json version>; skipped if not yet released

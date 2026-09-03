@@ -181,8 +181,8 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
           <details className="sc-details">
             <summary>Every product, checked</summary>
             <ul className="sc-list">
-            {resolution.matches.map((c) => <li key={c.sku}><Dot s="satisfied" /><Thumb p={bySku(c.sku)} /><span><a href={bySku(c.sku)?.url} target="_blank" rel="noreferrer">{bySku(c.sku)?.name ?? c.sku}</a> — every requirement verified</span></li>)}
-            {resolution.possible.map((c) => <li key={c.sku}><Dot s="unknown" /><span>{bySku(c.sku)?.name ?? c.sku} — no conflict, {c.counts.unknown} unresolved</span></li>)}
+            {resolution.matches.map((c) => <li key={c.sku}><Dot s="satisfied" /><Thumb p={bySku(c.sku)} /><span><a href={bySku(c.sku)?.url} target="_blank" rel="noreferrer">{bySku(c.sku)?.name ?? c.sku}</a>: every requirement verified</span></li>)}
+            {resolution.possible.map((c) => <li key={c.sku}><Dot s="unknown" /><span>{bySku(c.sku)?.name ?? c.sku}: no conflict, {c.counts.unknown} unresolved</span></li>)}
             {resolution.matches.length + resolution.possible.length === 0 && <li><Dot s="conflict" /><span>Nothing on this site satisfies all of them.</span></li>}
           </ul>
           {resolution.rejected.length > 0 && (

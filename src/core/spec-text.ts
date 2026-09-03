@@ -316,7 +316,7 @@ export function parseSpecText(raw: string, document = "Specification (as pasted)
 
   // Pass 1: the product's own requirements = the lead paragraph + every attribute item.
   let primary: Requirement[] = cabinet ? [] : reqsFrom(head.replace(BOD_LINE, ""), "main", document, notes);
-  if (!cabinet && /HFC Blend B/i.test(text)) notes.push('The spec says "HFC Blend B"; Halotron I (including Amerex 398) is an HCFC blend. Likely a drafting error — confirm with the engineer of record.');
+  if (!cabinet && /HFC Blend B/i.test(text)) notes.push('The spec says "HFC Blend B"; Halotron I (including Amerex 398) is an HCFC blend. Likely a drafting error. Confirm with the engineer of record.');
   if (head.trim() && primary.length === 0 && !cabinet) unparsed.push(...unreadFragments(head.replace(BOD_LINE, ""), recognized));
   else if (head.trim() && !cabinet) unparsed.push(...unreadFragments(head.replace(BOD_LINE, ""), recognized));
 
@@ -344,7 +344,7 @@ export function parseSpecText(raw: string, document = "Specification (as pasted)
     if (BOILERPLATE.test(t) && !RATING.test(t)) return classified.push({ it, kind: "boilerplate", num });
     if (NO_BOD.test(t)) { classified.push({ it, kind: "note", num }); if (!cabinet && reqs(it, num).length && !inAlt) classified.push({ it, kind: "attribute", num }); return; }
     if (ALTERNATES_HEADING.test(line) && !COMBINATION.test(line)) {
-      // "G. Acceptable Alternate Configurations:" — anything written on the heading line itself is one alternate; the items under it are the rest.
+      // On a heading like "G. Acceptable Alternate Configurations:", anything written on the heading line itself is one alternate; the items under it are the rest.
       const inline = line.slice(line.indexOf(":") + 1).trim();
       if (!cabinet && line.includes(":") && inline && reqsFrom(inline, "x", document).length) classified.push({ it: { ...it, text: inline, children: [] }, kind: "alternate", num });
       for (const c of it.children) classify(c, true, true);

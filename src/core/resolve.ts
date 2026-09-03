@@ -21,7 +21,7 @@ export type Resolution = {
     carried: Product | null;
     /** More than one catalog row claims this maker + part number. */
     ambiguous: string[];
-    /** Catalog products of the same family with no known conflict — what a submittal would offer as "or equal". */
+    /** Catalog products of the same family with no known conflict, what a submittal would offer as "or equal". */
     equivalents: string[];
   };
 };
@@ -84,7 +84,7 @@ export type OptionResolution = {
   kind: SpecOption["kind"];
   /** Products the clause itself allows: the named model for a basis of design; every exact match for an alternate. */
   permitted: ProductCandidate[];
-  /** Basis of design only: products with no known conflict against its requirements that are not the named model —
+  /** Basis of design only: products with no known conflict against its requirements that are not the named model:
    *  a substitution request, not a permitted alternate. Unresolved rows stay visible in counts. */
   technicalMatches: ProductCandidate[];
   possible: ProductCandidate[];

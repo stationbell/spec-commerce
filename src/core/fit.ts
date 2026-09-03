@@ -9,7 +9,7 @@ const num = (p: Product, key: string): number | undefined => {
   return Number.isFinite(n) ? n : undefined;
 };
 
-/** Below this the unit fits but "closes hard" — surfaced as detail, still satisfied. */
+/** Below this the unit fits but "closes hard", surfaced as detail, still satisfied. */
 export const TIGHT_CLEARANCE_IN = 0.5;
 
 export function fitCheck(unit: Product, cabinet: Product): FitResult {

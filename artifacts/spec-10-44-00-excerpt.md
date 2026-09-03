@@ -1,6 +1,6 @@
 # Project Specification, Section 10 44 00 Fire Extinguishers and Cabinets (excerpt)
 
-**Project:** Westgate Data Center, Building 1 · **Issue:** Permit set, 2026-08-14 · Part 2 of Section 10 44 00
+**Project:** · **Issue:** · Part 2 of Section 10 44 00
 
 SECTION 10 44 00 - FIRE EXTINGUISHERS AND CABINETS
 

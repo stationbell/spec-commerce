@@ -30,7 +30,7 @@ const HUMAN: Record<string, string> = {
 };
 const human = (attr: string) => HUMAN[attr] ?? words(attr);
 /** "a, b or c"; a synonym list whose entries all contain the first ("powder coat", "polyester powder coat") reads as "powder coat (any)". */
-const listWords = (vs: string[]) => (vs.length > 1 && vs.every((v) => v.includes(vs[0]!)) ? `${vs[0]} (any)` : vs.length > 1 ? `${vs.slice(0, -1).join(", ")} or ${vs[vs.length - 1]}` : vs[0] ?? "");
+const listWords = (vs: string[]) => (vs.length === 0 ? "(none listed)" : vs.length > 1 && vs.every((v) => v.includes(vs[0]!)) ? `${vs[0]} (any)` : vs.length > 1 ? `${vs.slice(0, -1).join(", ")} or ${vs[vs.length - 1]}` : vs[0]!);
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 const reqText = (r: Requirement) => {
   const v = r.value === true ? "" : Array.isArray(r.value) ? r.value.join(", ") : String(r.value);
@@ -359,7 +359,7 @@ export function ReqRow({ m, r }: { m: RequirementMatch; r?: Requirement }) {
 
 function FitCard({ compatible, bySku, product, store, catalog }: { compatible: { lookingFor: string; forSku?: string; requirements: Requirement[]; candidates: CompatibleCandidate[] }; bySku: (s: string) => Product | undefined; product: Product; store: AppStore; catalog: Product[] }) {
   const byId = new Map(compatible.requirements.map((r) => [r.id, r]));
-  const unchecked = (c: CompatibleCandidate) => c.candidate.matches.filter((m) => m.status === "unknown" && m.reason !== "pair_check_required").map((m) => human(byId.get(m.requirementId)?.attribute ?? m.requirementId));
+  const unchecked = (c: CompatibleCandidate) => [...new Set(c.candidate.matches.filter((m) => m.status === "unknown" && m.reason !== "pair_check_required").map((m) => human(byId.get(m.requirementId)?.attribute ?? m.requirementId)))];
   const good = compatible.candidates.filter((c) => c.fit?.status === "satisfied" && c.candidate.counts.conflict === 0);
   const rest = compatible.candidates.filter((c) => !good.includes(c));
   const other = compatible.forSku && compatible.forSku !== product.sku ? bySku(compatible.forSku) : undefined;

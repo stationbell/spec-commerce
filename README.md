@@ -31,11 +31,15 @@ The page never guesses. If a requirement cannot be checked from product data, it
 
    > Here is our spec. Give sections 2.2 and 2.3 to this page's spec checker. Does this product meet 2.3, and what on this site does?
 
-   Then, as a follow-up: "Ok, what about the cabinets?" Short turns work better than one long one.
+   Then two follow-ups, one at a time. Short turns work better than one long one:
+
+   > Ok, what about the cabinets?
+
+   > Propose the 15.5 lb unit and that cabinet for a quote, six each, from the schedule, and wait for my decisions on the page.
 
    Paste the text rather than attaching the file. In ChatGPT's browser, an attached file stays in the chat's own file context and is not handed to a site's tools on its own, while text you type or paste is. ChatGPT may also ask you to approve sending the spec text to the page before it calls the checker; approve it. If "Approve for me" is on, it may decline on your behalf, so turn that off for this. The two sections are below if you want them without the PDF.
 
-3. Watch the panel. Spec review says the product on the page does not meet the spec and gives the numbers: its rating is 1-A:10-B:C and the spec needs 2-A:10-B:C. Recommendations shows what does: the 15.5 lb unit, with a note that the page could not check the pressure gauge from product data, and the CO2 plus water pair that alternate 2 allows. After the cabinet question it shows the cabinet that fits and meets 2.2, the recessed Embassy with the vertical duo door, and explains why the semi-recessed Ambassador does not. Set a quantity and add what you want to the quote request yourself, or ask the agent to propose lines and approve them under Approvals. Nothing is ordered from the page, and the agent can read your decisions back.
+3. Watch the panel. Spec review says the product on the page does not meet the spec and gives the numbers: its rating is 1-A:10-B:C and the spec needs 2-A:10-B:C. Recommendations shows what does: the 15.5 lb unit, with a note that the page could not check the pressure gauge from product data, and the CO2 plus water pair that alternate 2 allows. After the cabinet question it shows the cabinet that fits and meets 2.2, the recessed Embassy with the vertical duo door, and explains why the semi-recessed Ambassador does not. After the third prompt, Approvals shows the lines the agent proposed, waiting for your click: approve one, change a quantity, or reject one with a reason, and the agent reads your decisions back. You can also add any recommended product yourself with the button on its row. Nothing is ordered from the page.
 
 The full demo documents, the specification excerpt, a schedule sheet and code citations, are in [artifacts/](artifacts/) as Markdown and PDF.
 

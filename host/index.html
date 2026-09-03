@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Example product page</title>
+  <!-- The bundle reads the product from the page's JSON-LD. Any product in the merchant snapshot works. -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Product","name":"Buckeye 11 lb Halotron Clean Agent Fire Extinguisher","sku":"BE-71100","mpn":"71100","brand":{"@type":"Brand","name":"Buckeye"},"offers":{"@type":"Offer","priceCurrency":"USD","price":1175}}
+  </script>
+  <style>
+    body { margin: 0; font: 16px/1.5 system-ui, sans-serif; color: #222; }
+    main { max-width: 720px; margin: 0 auto; padding: 40px 24px; }
+    h1 { font-size: 24px; margin: 0 0 8px; }
+    .price { font-size: 22px; font-weight: 600; margin: 8px 0 16px; }
+    table { border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; font-weight: 500; color: #666; padding: 6px 16px 6px 0; }
+    td { padding: 6px 0; }
+    p.note { color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="note">Example product page. The live demo runs the same bundle on a page that mirrors a real merchant product page.</p>
+    <h1>Buckeye 11 lb Halotron Clean Agent Fire Extinguisher</h1>
+    <div class="price">$1,175.00</div>
+    <p class="agent-note">Buying against a specification? An AI agent in this browser can check this product against your spec, find what on this site meets it, and propose lines for a quote that you approve, using this page's built-in tools (WebMCP). Click <b>Spec check</b> at the bottom right for a prompt to paste.</p>
+    <table>
+      <tr><th>Part number</th><td>71100</td></tr>
+      <tr><th>UL rating</th><td>1-A:10-B:C</td></tr>
+      <tr><th>Agent capacity</th><td>11 lb</td></tr>
+      <tr><th>Cylinder diameter</th><td>7 in</td></tr>
+    </table>
+  </main>
+  <script src="__SC_BUNDLE_URL__" crossorigin="anonymous" data-merchant="usmadesupply"></script>
+</body>
+</html>

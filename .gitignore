@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.env
+.env.*
+.DS_Store
+*.local
+
+# Local-only planning/working docs — never published (see README for public architecture)
+PLAN.md
+PROJECT.md
+AGENTS.md
+build/
+
+# Editor, tool and deploy state
+.*/
+!.github/
+
+# Built release bundles are deploy artifacts, not source. Only the pointer file is tracked.
+releases/*/*/
+
+# The branded preview page (mirrors the merchant's real product page). Private; the build prefers it when present.
+host-private/

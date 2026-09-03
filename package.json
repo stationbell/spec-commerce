@@ -1,0 +1,44 @@
+{
+  "name": "spec-commerce",
+  "version": "1.9.18",
+  "private": true,
+  "type": "module",
+  "description": "Merchant-installed layer that turns building specifications into verified, purchasable bills of materials, with WebMCP tools on the merchant origin.",
+  "license": "MIT",
+  "repository": "github:stationbell/spec-commerce",
+  "homepage": "https://spec-commerce.stationbell.com",
+  "scripts": {
+    "dev": "vite build --watch",
+    "preview": "vite preview --outDir dist/local --host localhost --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc --noEmit && vite build",
+    "release": "pnpm build && node scripts/release.ts",
+    "promote": "node scripts/promote.ts",
+    "assemble": "node scripts/assemble.ts",
+    "deploy:static": "pnpm assemble && wrangler pages deploy dist/static --project-name stationbell-static --branch main --commit-dirty=true",
+    "deploy:site": "pnpm assemble && test -f dist/site/index.html && wrangler pages deploy dist/site --project-name spec-commerce --branch main --commit-dirty=true",
+    "ship": "pnpm deploy:static && pnpm deploy:site",
+    "ship:preview": "SC_STATIC_ORIGIN=https://preview.stationbell-static.pages.dev pnpm assemble && wrangler pages deploy dist/static --project-name stationbell-static --branch preview --commit-dirty=true && wrangler pages deploy dist/site --project-name spec-commerce --branch preview --commit-dirty=true"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.5.4",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
+  },
+  "engines": {
+    "node": ">=22.6",
+    "pnpm": ">=10"
+  },
+  "packageManager": "pnpm@10.10.0"
+}

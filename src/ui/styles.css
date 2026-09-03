@@ -245,3 +245,5 @@ details.sc-details > summary { display: flex; }
 .sc-table th[scope="row"] { font: 14px/19px var(--font-body); text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
 .sc-table td { overflow-wrap: anywhere; }
 .sc-table th:nth-child(2), .sc-table td:nth-child(2) { white-space: normal; }
+
+.sc-summary-note { margin-left: 8px; font: 400 13px/18px var(--font-body); color: var(--gray-1); }

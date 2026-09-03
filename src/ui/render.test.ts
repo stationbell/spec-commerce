@@ -38,7 +38,7 @@ describe("drawer renders the agent path (crash smoke test: server render, no eff
     expect(html).toContain("Capacity: 11 lb. The spec needs at least 15.5 lb.");
     expect(html).toContain("What meets the spec on this site");
     for (const title of ["Spec review", "Recommendations", "Approvals", "Notes"]) expect(html).toContain(title);
-    expect(html.match(/<details [^>]*class="sc-panel" open=""/g)?.length).toBe(4);
+    expect(html.match(/<details [^>]*class="sc-panel" open=""/g)?.length).toBe(3); // Notes starts folded
     expect(html).toContain("Doesn&#x27;t meet the spec");
     expect(html).toContain('role="dialog"');
     expect(html).toContain('aria-labelledby="sc-drawer-title"');

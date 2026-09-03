@@ -129,17 +129,14 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
         {verdict && <p className="sc-lead">{verdict.head}</p>}
         {verdict && verdict.reasons.length > 0 && <ul className="sc-reasons">{verdict.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul>}
         {matrix && (
-          <details className="sc-details" open>
-            <summary>Requirement by requirement</summary>
-            <p className="sc-hint" style={{ marginTop: 0 }}>
-            Meets {matrix.counts.satisfied} of {matrix.matches.length}.{matrix.counts.conflict > 0 ? ` Fails ${matrix.counts.conflict}.` : ""}{matrix.counts.unknown > 0 ? ` Couldn't check ${matrix.counts.unknown}.` : ""}
-          </p>
+          <details className="sc-details">
+            <summary>Requirement by requirement <span className="sc-summary-note">Meets {matrix.counts.satisfied} of {matrix.matches.length}{matrix.counts.conflict > 0 ? `, fails ${matrix.counts.conflict}` : ""}{matrix.counts.unknown > 0 ? `, couldn't check ${matrix.counts.unknown}` : ""}</span></summary>
           <table className="sc-table">
             <caption className="sc-visually-hidden">This product checked against each requirement</caption>
             <thead><tr><th scope="col">Requirement</th><th scope="col">Spec asks</th><th scope="col">This product</th><th scope="col">Result</th></tr></thead>
             <tbody>{matrix.matches.map((m) => <ReqTr key={m.requirementId} m={m} r={reqById.get(m.requirementId)} />)}</tbody>
           </table>
-          {alternatives.length > 0 && (
+          {alternatives.length > 0 && !specResolution && !resolution && (
             <p className="sc-hint">
               Also worth a look: {alternatives.map(({ sku: s, counts }, i) => { const p = bySku(s); return p ? <span key={s}>{i ? "; " : ""}<a href={p.url} target="_blank" rel="noreferrer">{p.name}</a>{p.priceCents != null ? ` (${formatCents(p.priceCents)})` : ""}. No conflicts{counts.unknown ? `; ${counts.unknown} couldn't be checked` : ""}.</span> : null; })}
             </p>
@@ -248,7 +245,7 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
         )}
       </Panel>
 
-      <Panel title="Notes" status={specIssues.length + notes.length ? `${specIssues.length + notes.length}` : ""}>
+      <Panel title="Notes" open={false} status={specIssues.length + notes.length ? `${specIssues.length + notes.length}` : ""}>
         <Flagged notes={specIssues} />
         <NoteBox store={store} notes={notes} />
         <footer className="sc-foot sc-noprint">
@@ -544,9 +541,9 @@ function ReqTr({ m, r }: { m: RequirementMatch; r?: Requirement }) {
 }
 
 /** One collapsible panel, the same for every section: title, a short status, a body. Native details/summary for keyboard and screen readers. */
-function Panel({ id, title, status, children }: { id?: string; title: string; status?: string; children: ReactNode }) {
+function Panel({ id, title, status, children, open = true }: { id?: string; title: string; status?: string; children: ReactNode; open?: boolean }) {
   return (
-    <details id={id} className="sc-panel" open>
+    <details id={id} className="sc-panel" open={open}>
       <summary className="sc-panel-head"><span className="sc-panel-title" role="heading" aria-level={3}>{title}</span>{status ? <span className="sc-panel-status">{status}</span> : null}</summary>
       <div className="sc-panel-body">{children}</div>
     </details>

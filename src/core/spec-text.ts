@@ -116,9 +116,11 @@ const CABINET_RECOGNIZED = [
   /cabinet|door|glazing|material|finish|mounting|recess|surface|trim|frame|hardware|hinge|latch|pull|bracket|identification|lettering|shelf|fire-?rated|non-?rated|rated construction|wall|projection|protru|accommodat|housing|steel|aluminum|acrylic|glass|enamel|powder|anodized|stainless|color|colour|configuration|installation|type/i,
 ];
 
-function cabinetReqsFrom(label: string, text: string, childTexts: string[], section: string, doc: string): Requirement[] {
+function cabinetReqsFrom(label: string, text: string, children: { text: string; section: string }[], section: string, doc: string): Requirement[] {
+  const childTexts = children.map((c) => c.text);
   const src = { kind: "spec" as const, document: doc, section, text: text.trim().replace(/\s+/g, " ").slice(0, 300) };
   const out: Requirement[] = [];
+  const mkAt = (attribute: string, operator: Requirement["operator"], value: unknown, at: { text: string; section: string }): Requirement => ({ id: rid(at.section), appliesTo: "fire_extinguisher_cabinet", attribute, operator, value, source: { ...src, section: at.section, text: at.text.trim().replace(/\s+/g, " ").slice(0, 300) } });
   const mk = (attribute: string, operator: Requirement["operator"], value: unknown, unit?: string): Requirement => ({ id: rid(section), appliesTo: "fire_extinguisher_cabinet", attribute, operator, value, unit, source: src });
   const all = [text, ...childTexts].join("\n");
   const l = label.toLowerCase();
@@ -156,12 +158,13 @@ function cabinetReqsFrom(label: string, text: string, childTexts: string[], sect
   }
   if (/^door/.test(l) && !/hardware/.test(l)) {
     // "E. Door: 1. Material: … 2. Style: … 3. Glazing: …" or "D. Door: full-view clear acrylic glazing."
-    for (const ct of childTexts) {
+    for (const ch of children) {
+      const ct = ch.text;
       const cl = ct.slice(0, ct.indexOf(":") > 0 ? ct.indexOf(":") : 0).toLowerCase();
       const cb = ct.slice(ct.indexOf(":") + 1);
-      if (/material/.test(cl)) { const v = metal(cb); if (v) out.push(mk("door_frame_material", "eq", v)); }
-      else if (/style/.test(cl)) out.push(...doorBits(cb).filter((r) => r.attribute === "door_style"));
-      else if (/glazing|window|panel/.test(cl)) out.push(...doorBits(cb).filter((r) => r.attribute === "door_material"));
+      if (/material/.test(cl)) { const v = metal(cb); if (v) out.push(mkAt("door_frame_material", "eq", v, ch)); }
+      else if (/style/.test(cl)) out.push(...doorBits(cb).filter((r) => r.attribute === "door_style").map((r) => ({ ...r, id: rid(ch.section), source: { ...r.source, section: ch.section, text: ct.trim().slice(0, 300) } })));
+      else if (/glazing|window|panel/.test(cl)) out.push(...doorBits(cb).filter((r) => r.attribute === "door_material").map((r) => ({ ...r, id: rid(ch.section), source: { ...r.source, section: ch.section, text: ct.trim().slice(0, 300) } })));
     }
     if (childTexts.length === 0) {
       out.push(...doorBits(body));
@@ -230,13 +233,16 @@ function pickSection(text: string, family: ProductFamily): string {
   const sections = heads.map((start, k) => ({ head: lines[start]!, body: lines.slice(start, heads[k + 1] ?? lines.length).join("\n") }));
   const want = family === "fire_extinguisher_cabinet" ? /cabinet/i : /extinguisher/i;
   const avoid = family === "fire_extinguisher_cabinet" ? /extinguisher(?!s? and cabinets| cabinet)/i : /cabinet/i;
-  const pick = sections.find((s) => want.test(s.head) && !avoid.test(s.head)) ?? sections.find((s) => want.test(s.head));
+  // Part 2 is where products are specified; Part 1 (summary, submittals) mentions the same words without stating requirements.
+  const part2 = sections.filter((s) => /^\s*2\./.test(s.head));
+  const pool = part2.length ? part2 : sections;
+  const pick = pool.find((s) => want.test(s.head) && !avoid.test(s.head)) ?? pool.find((s) => want.test(s.head));
   return pick ? pick.body : text;
 }
 
 type Style = "upper" | "number" | "lower" | "paren" | "bullet" | "heading";
 type Item = { style: Style; level: number; num?: string; path: string; text: string; children: Item[] };
-const descendants = (it: Item): string[] => it.children.flatMap((c) => [c.text, ...descendants(c)]);
+const descendantItems = (it: Item): Item[] => it.children.flatMap((c) => [c, ...descendantItems(c)]);
 const MARKER = /^(\s*)(?:(\d+)[.)]|([A-Z])[.)]|([a-z])[.)]|\((\d+)\)|([-–—•○◦▪*]))\s+(\S.*)$/;
 const HEADING_LINE = /^[A-Za-z][A-Za-z /()-]{2,48}:\s*$/;
 
@@ -246,6 +252,7 @@ function outline(section: string): { head: string; items: Item[] } {
   const stack: Item[] = [];
   const headLines: string[] = [];
   let current: Item | null = null;
+  let topStyle: Style | null = null;
   const levelOf = (indent: number) => (indent < 2 ? 0 : indent < 5 ? 1 : indent < 8 ? 2 : 3);
   for (const raw of section.split("\n")) {
     const line = raw.replace(/\s+$/, "");
@@ -255,15 +262,18 @@ function outline(section: string): { head: string; items: Item[] } {
     if (m) {
       const style: Style = m[2] ? "number" : m[3] ? "upper" : m[4] ? "lower" : m[5] ? "paren" : "bullet";
       let level = levelOf(m[1]!.length);
+      // A bare heading ("Acceptable Alternates:") adopts what follows it, until the document's own top-level style resumes.
+      if (stack[0]?.style === "heading" && level === 0 && topStyle && style === topStyle) stack.length = 0;
       // A numbered item indented under a numbered item is its sibling, not its child (specs indent unevenly).
       while (stack.length && stack[stack.length - 1]!.level >= level) stack.pop();
       const parent = stack[stack.length - 1];
       if (parent && parent.style === style) { level = parent.level; stack.pop(); }
-      const marker = m[2] ?? m[3] ?? m[4] ?? m[5] ?? "";
       const p0 = stack[stack.length - 1];
+      const marker = m[2] ?? m[3] ?? m[4] ?? m[5] ?? String((p0 ? p0.children.length : roots.length) + 1);
       const item: Item = { style, level, num: m[2] ?? m[5] ?? undefined, path: [p0?.path, marker].filter(Boolean).join("."), text: m[7]!.trim(), children: [] };
       const p = stack[stack.length - 1];
       (p ? p.children : roots).push(item);
+      if (!p) topStyle ??= style;
       stack.push(item);
       current = item;
       continue;
@@ -301,7 +311,7 @@ export function parseSpecText(raw: string, document = "Specification (as pasted)
   const cabinet = family === "fire_extinguisher_cabinet";
   const recognized = cabinet ? CABINET_RECOGNIZED : RECOGNIZED;
   const reqs = (it: Item, section: string) => cabinet
-    ? cabinetReqsFrom(labelOf(firstLine(it.text)), it.text, descendants(it), cite(it, section), document)
+    ? cabinetReqsFrom(labelOf(firstLine(it.text)), it.text, descendantItems(it).map((c) => ({ text: c.text, section: cite(c, section) })), cite(it, section), document)
     : reqsFrom(it.text, cite(it, section), document, notes);
 
   // Pass 1: the product's own requirements = the lead paragraph + every attribute item.
@@ -310,43 +320,43 @@ export function parseSpecText(raw: string, document = "Specification (as pasted)
   if (head.trim() && primary.length === 0 && !cabinet) unparsed.push(...unreadFragments(head.replace(BOD_LINE, ""), recognized));
   else if (head.trim() && !cabinet) unparsed.push(...unreadFragments(head.replace(BOD_LINE, ""), recognized));
 
-  type Classified = { it: Item; kind: "bod" | "alternates" | "boilerplate" | "combination" | "alternate" | "attribute" | "note" | "unread"; num: string };
+  type Classified = { it: Item; kind: "bod" | "boilerplate" | "combination" | "alternate" | "attribute" | "note" | "unread"; num: string; bod?: { manufacturer: string; model: string } };
   const classified: Classified[] = [];
-  let inAlternates = false;
   let n = 0;
-  const classify = (it: Item, nested: boolean) => {
+  // inAlt is lexical: true only for items under an alternates heading, never for what follows it.
+  const classify = (it: Item, nested: boolean, inAlt: boolean) => {
     const t = it.text;
     const num = String(++n);
     const line = firstLine(t);
-    if (readBasisOfDesign(t)) return classified.push({ it, kind: "bod", num });
+    const bodHere = readBasisOfDesign(t);
+    if (bodHere) return classified.push({ it, kind: "bod", num, bod: bodHere });
     if (it.style === "heading" && /basis[- ]of[- ]design/i.test(line) && it.children.length) {
       const [first, ...rest] = it.children;
-      if (!ALTERNATE_ITEM.test(first!.text) && !COMBINATION.test(first!.text) && readBasisOfDesignValue(first!.text)) {
-        classified.push({ it: { ...first!, text: `${line}\n${first!.text}` }, kind: "bod", num });
-        for (const c of rest) classify(c, true);
+      const value = !ALTERNATE_ITEM.test(first!.text) && !COMBINATION.test(first!.text) ? readBasisOfDesignValue(first!.text) : null;
+      if (value) {
+        classified.push({ it: { ...first!, text: `${line} ${first!.text}` }, kind: "bod", num, bod: value });
+        for (const c of rest) classify(c, true, inAlt);
         return;
       }
-      for (const c of it.children) classify(c, true);
+      for (const c of it.children) classify(c, true, inAlt);
       return;
     }
     if (BOILERPLATE.test(t) && !RATING.test(t)) return classified.push({ it, kind: "boilerplate", num });
-    if (NO_BOD.test(t)) { classified.push({ it, kind: "note", num }); if (!cabinet && reqs(it, num).length && !inAlternates) classified.push({ it, kind: "attribute", num }); return; }
-    if (ALTERNATES_HEADING.test(line) && !COMBINATION.test(line) && (cabinet ? true : reqsFrom(line, "x", document).length === 0)) {
-      inAlternates = true;
-      for (const c of it.children) classify(c, true);
+    if (NO_BOD.test(t)) { classified.push({ it, kind: "note", num }); if (!cabinet && reqs(it, num).length && !inAlt) classified.push({ it, kind: "attribute", num }); return; }
+    if (ALTERNATES_HEADING.test(line) && !COMBINATION.test(line)) {
+      // "G. Acceptable Alternate Configurations:" — anything written on the heading line itself is one alternate; the items under it are the rest.
+      const inline = line.slice(line.indexOf(":") + 1).trim();
+      if (!cabinet && line.includes(":") && inline && reqsFrom(inline, "x", document).length) classified.push({ it: { ...it, text: inline, children: [] }, kind: "alternate", num });
+      for (const c of it.children) classify(c, true, true);
       return;
     }
     if (!cabinet && COMBINATION.test(t)) return classified.push({ it, kind: "combination", num });
-    if (!cabinet && (inAlternates || ALTERNATE_ITEM.test(line))) return classified.push({ it, kind: "alternate", num });
-    if (reqs(it, num).length) {
-      classified.push({ it, kind: "attribute", num });
-      if (cabinet) for (const c of it.children) if (!/^\d+\.\s*(?:shelf|hardware)/i.test(c.text)) { /* children were read with the parent */ }
-      return;
-    }
-    if (it.children.length && !nested) { for (const c of it.children) classify(c, true); return; }
+    if (!cabinet && (inAlt || ALTERNATE_ITEM.test(line))) return classified.push({ it, kind: "alternate", num });
+    if (reqs(it, num).length) return classified.push({ it, kind: "attribute", num });
+    if (it.children.length && !nested) { for (const c of it.children) classify(c, true, inAlt); return; }
     classified.push({ it, kind: "unread", num });
   };
-  for (const it of items) classify(it, false);
+  for (const it of items) classify(it, false, false);
   seq = 0;
 
   for (const c of classified) if (c.kind === "attribute") {
@@ -380,8 +390,9 @@ export function parseSpecText(raw: string, document = "Specification (as pasted)
   for (const c of classified) {
     const t = c.it.text;
     if (c.kind === "bod") {
-      const bod = readBasisOfDesign(t)!;
-      options.push({ id: `bod-${c.num}`, label: `Basis of design: ${bod.manufacturer} ${bod.model}`, kind: "basis_of_design", basisOfDesign: bod, requirements: bodRequirements(bodOwn(t, c.num)), source: { kind: "spec", document, section: c.num, text: t.slice(0, 300) } });
+      const bod = c.bod ?? readBasisOfDesign(t);
+      if (!bod) continue;
+      options.push({ id: `bod-${c.num}`, label: `Basis of design: ${bod.manufacturer} ${bod.model}`, kind: "basis_of_design", basisOfDesign: bod, requirements: bodRequirements(bodOwn(t, cite(c.it, c.num))), source: { kind: "spec", document, section: cite(c.it, c.num), text: t.slice(0, 300) } });
     } else if (c.kind === "boilerplate") {
       notes.push(`Products other than the basis of design and the alternates go through the substitution procedure (${label(t).replace(/\.$/, "")}).`);
     } else if (c.kind === "combination") {
@@ -394,14 +405,15 @@ export function parseSpecText(raw: string, document = "Specification (as pasted)
         parts = body.split(/\s+(?:and|with|plus)\s+(?=(?:a\s+|an\s+|one\s+)?(?:stored|water|co2|co₂|carbon|dry|clean))/i);
         if (parts.length < 2) parts = body.split(/\s*[;\n]\s*(?:and\s+)?/i).filter((h) => h.trim());
       }
-      const slots: SpecSlot[] = parts.map((h, i) => ({ id: `unit-${i + 1}`, label: h.replace(/\s+/g, " ").replace(/[,;\s]+(?:and)?\s*$/, "").slice(0, 80), requirements: reqsFrom(h, `${num}.${i + 1}`, document, notes) })).filter((sl) => sl.requirements.length);
-      if (slots.length >= 2) options.push({ id: `alt-${num}`, label: `Alternate ${num}: ${label(t)}`, kind: "assembly", requirements: [], slots, source: { kind: "spec", document, section: num, text: t.slice(0, 300) } });
+      const partItems = c.it.children.length >= 2 ? c.it.children : [];
+      const slots: SpecSlot[] = parts.map((h, i) => ({ id: `unit-${i + 1}`, label: h.replace(/\s+/g, " ").replace(/[,;\s]+(?:and)?\s*$/, "").slice(0, 80), requirements: reqsFrom(h, partItems[i] ? cite(partItems[i]!, `${num}.${i + 1}`) : `${cite(c.it, num)}.${i + 1}`, document, notes) })).filter((sl) => sl.requirements.length);
+      if (slots.length >= 2) options.push({ id: `alt-${num}`, label: `Alternate ${num}: ${label(t)}`, kind: "assembly", requirements: [], slots, source: { kind: "spec", document, section: cite(c.it, num), text: t.slice(0, 300) } });
       else unparsed.push(t.slice(0, 300));
     } else if (c.kind === "alternate") {
       altNum += 1;
       const num = /^alternate\s*(\d+)/i.exec(firstLine(t))?.[1] ?? c.it.num ?? String(altNum);
       const own = reqsFrom(t, num, document, notes);
-      if (own.length) options.push({ id: `alt-${num}`, label: `Alternate ${num}: ${label(t)}`, kind: "alternate", requirements: [...own, ...inheritInto(own, num)], source: { kind: "spec", document, section: num, text: t.slice(0, 300) } });
+      if (own.length) options.push({ id: `alt-${num}`, label: `Alternate ${num}: ${label(t)}`, kind: "alternate", requirements: [...own, ...inheritInto(own, num)], source: { kind: "spec", document, section: cite(c.it, num), text: t.slice(0, 300) } });
       else unparsed.push(t.slice(0, 300));
     }
   }

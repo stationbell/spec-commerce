@@ -1,6 +1,6 @@
 {
   "name": "spec-commerce",
-  "version": "1.9.21",
+  "version": "1.9.22",
   "private": true,
   "type": "module",
   "description": "Merchant-installed layer that turns building specifications into verified, purchasable bills of materials, with WebMCP tools on the merchant origin.",

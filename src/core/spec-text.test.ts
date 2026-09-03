@@ -192,7 +192,7 @@ describe("Section 10 44 00 as the demo specification writes it (lettered attribu
     expect(attrs.door_style?.value).toBe("vertical-duo");
     expect(attrs.door_material?.value).toBe("acrylic");
     expect(attrs.finish?.value).toEqual(["baked enamel", "powder coat"]);
-    expect(attrs.door_style?.source.section).toBe("2.2.E");
+    expect(attrs.door_style?.source.section).toBe("2.2.E.2");
     expect(p.unparsed).toEqual([]);
   });
 
@@ -201,5 +201,46 @@ describe("Section 10 44 00 as the demo specification writes it (lettered attribu
     const p = parseSpecText(only, SPEC_DOCUMENT, "portable_fire_extinguisher");
     expect(p.primary.map((r) => r.attribute).sort()).toEqual(SPEC_EXTINGUISHER.primary.map((r) => r.attribute).sort());
     expect(p.options.map((o) => o.kind)).toEqual(["alternate", "alternate", "assembly"]);
+  });
+});
+
+describe("reader edge cases from review", () => {
+  it("prefers Part 2 over a Part 1 heading that mentions the same words", () => {
+    const p = parseSpecText(`1.1 SUMMARY: FIRE EXTINGUISHERS AND CABINETS
+A. Section includes portable fire extinguishers and cabinets.
+2.3 CLEAN-AGENT PORTABLE FIRE EXTINGUISHER
+A. Rating: UL-rated not less than 2-A:10-B:C.`);
+    expect(p.primary.find((r) => r.attribute === "extinguisher_class_rating")?.value).toBe("2-A:10-B:C");
+  });
+  it("an alternates heading with text on its own line yields that alternate and the items under it", () => {
+    const p = parseSpecText(`2.3 EXTINGUISHER
+A. Rating: UL-rated not less than 2-A:10-B:C.
+B. Acceptable Alternate Configurations: Other listed halocarbon-based clean-agent fire extinguishers.
+   1. Carbon-dioxide fire extinguisher with minimum 10-B:C rating.`);
+    expect(p.options.map((o) => o.kind)).toEqual(["alternate", "alternate", "alternate"]);
+    expect(p.options[1]!.requirements.find((r) => r.attribute === "agent")?.value).toBe("clean agent");
+    expect(p.options[2]!.requirements.find((r) => r.attribute === "agent")?.value).toBe("carbon dioxide");
+  });
+  it("a bare alternates heading stops adopting when the lettered items resume, and later attributes stay attributes", () => {
+    const p = parseSpecText(`FE1 clean agent extinguisher.
+A. Rating: UL-rated not less than 2-A:10-B:C.
+Acceptable Alternatives:
+1. Carbon-dioxide fire extinguisher with minimum 10-B:C rating.
+B. Container: steel cylinder with polyester powder coat.`);
+    expect(p.primary.map((r) => r.attribute).sort()).toEqual(["agent", "cylinder_material", "extinguisher_class_rating", "finish", "ul_listed"]);
+    expect(p.options.map((o) => o.kind)).toEqual(["alternate", "alternate"]);
+    expect(p.options[1]!.requirements.find((r) => r.attribute === "agent")?.value).toBe("carbon dioxide");
+  });
+  it("cites nested items by their own path", async () => {
+    const { SPEC_CABINET, SPEC_EXTINGUISHER } = await import("../demo/requirements");
+    expect(SPEC_CABINET.primary.find((r) => r.attribute === "door_style")?.source.section).toBe("2.2.E.2");
+    expect(SPEC_CABINET.primary.find((r) => r.attribute === "door_material")?.source.section).toBe("2.2.E.3");
+    expect(SPEC_CABINET.primary.find((r) => r.attribute === "door_frame_material")?.source.section).toBe("2.2.E.1");
+    expect(SPEC_EXTINGUISHER.options[2]!.source?.section).toBe("2.3.G.2");
+    expect(SPEC_EXTINGUISHER.options[2]!.slots?.[0]?.requirements[0]?.source.section).toBe("2.3.G.2.a");
+  });
+  it("a bare basis-of-design heading never dereferences a missing value", () => {
+    const p = parseSpecText(`FE1 clean agent, 2-A:10-B:C.\nBasis of Design:\n1. Alternate Model: other clean agent, 2-A:10-B:C.`);
+    expect(p.options.every((o) => o.kind !== "basis_of_design")).toBe(true);
   });
 });

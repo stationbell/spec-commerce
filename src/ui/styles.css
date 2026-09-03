@@ -193,6 +193,10 @@ details.sc-details > summary + * { margin-top: 8px; }
 
 /* ---- panels: one look for every section ---- */
 .sc-panel { background: var(--white); border: 1px solid var(--gray-4); border-radius: var(--radius); margin: 0 0 10px; scroll-margin-top: 12px; }
+/* In the drawer the panels sit inside the edges, so every border and corner is fully drawn. */
+.sc-root.drawer .sc-panel { margin: 12px 12px 0; }
+.sc-root.drawer .sc-panel:last-of-type { margin-bottom: 12px; }
+.sc-panel-body .sc-foot { margin: 14px 0 0; }
 .sc-panel-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; list-style: none; font: 500 17px/24px var(--font-head); color: var(--navy); }
 .sc-panel-head::-webkit-details-marker { display: none; }
 .sc-panel-head::before { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); margin: 0 2px 2px 0; flex: none; transition: transform .15s ease; }
@@ -208,7 +212,6 @@ details.sc-details > summary + * { margin-top: 8px; }
 .sc-panel-body .sc-empty2 + .sc-link { margin-top: 6px; }
 .sc-panel-body details.sc-details { margin-top: 12px; }
 .sc-panel-body .sc-sub + .sc-sub, .sc-panel-body h4 + .sc-sub { margin-top: 12px; }
-.sc-panel-body .sc-foot { margin-top: 12px; }
 .sc-panel-body .sc-flagged { margin-top: 0; }
 .sc-panel-body .sc-flagged + .sc-notebox { margin-top: 12px; }
 .sc-panel-body .sc-reasons { margin: 0 0 4px; }

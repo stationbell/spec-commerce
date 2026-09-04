@@ -6,7 +6,7 @@ Humans and agents working together to turn building and product specifications i
 
 ChatGPT in Work mode on the left. Our product page on the right, with the Spec check panel answering from product data: the 11 lb unit does not meet section 2.3, the 15.5 lb unit does, and the recessed cabinet that fits it.
 
-**A note from Rod** This is an experimental demo I built for the WebMCP Challenge. It is not a finished product. It runs on one product page of our Shopify storefront behind a flag and on a copy of that page. Nothing is sold or ordered through it. The catalog is a snapshot I copied by hand from cut sheets and product pages, and the prices are indicative. Expect rough edges. All trademarks belong to their respective companies.
+**NOTE FROM ME** This is an experimental demo I built for the WebMCP Challenge. It is not a finished product. It runs on one product page of our Shopify storefront behind a flag and on a copy of that page. Nothing is sold or ordered through it. The catalog is a snapshot I copied by hand from cut sheets and product pages, and the prices are indicative. Expect rough edges. All trademarks belong to their respective companies.
 
 **Live demo:** https://spec-commerce.stationbell.com. Open it in the ChatGPT desktop app's browser with the chat in Work mode, or in Chrome 149 or newer with `chrome://flags/#enable-webmcp-testing` turned on. The demo page mirrors our real product page: https://usmadesupply.com/safety/fire-extinguishers/halotron/usms-marketplace/products/buckeye-11-lb-halotron-clean-agent-fire-extinguisher?spec-commerce
 

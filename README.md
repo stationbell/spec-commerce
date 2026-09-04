@@ -12,6 +12,8 @@ ChatGPT in Work mode on the left. Our product page on the right, with the Spec c
 
 **Live demo:** https://spec-commerce.stationbell.com. Open it in the ChatGPT desktop app's browser with the chat in Work mode, or in Chrome 149 or newer with `chrome://flags/#enable-webmcp-testing` turned on. The demo page mirrors our real product page.
 
+The video shows the ChatGPT path. I also tested the Chrome path in Chrome 152 with the flag on, calling all six tools through Chrome's own WebMCP hook, including the approval turn where the tool waits for a click on the page. Chrome's built-in agent was not part of that test.
+
 The same panel is live on our store, behind a flag: https://usmadesupply.com/safety/fire-extinguishers/halotron/usms-marketplace/products/buckeye-11-lb-halotron-clean-agent-fire-extinguisher?spec-commerce. Paste that address in directly. The store is a single-page app, so the panel loads with the page, not when you click through to it. That page's markup and images belong to the store and are not part of this repository. The `host/` folder has a plain example page that mounts the same bundle.
 
 ## Inspiration
@@ -119,7 +121,7 @@ The full demo documents, the specification excerpt, a schedule sheet and code ci
 
 The page registers these with `document.modelContext.registerTool()` in [src/webmcp/register.ts](src/webmcp/register.ts).
 
-- `resolve_requirements` takes a spec clause as written, or a list of requirements, and answers what in the catalog satisfies it. It understands a basis of design, numbered alternates and two-unit combinations. It keeps "matches the numbers" separate from "allowed by the spec".
+- `resolve_requirements` takes a spec clause as written, or a list of requirements, and answers what in the catalog satisfies it. It understands a basis of design, numbered alternates and two-unit combinations. It keeps "matches the numbers" separate from "allowed by the spec". It reads pasted spec text for extinguishers. For cabinets, the agent passes a list of requirements, and the page checks each one.
 - `get_product` returns this product's facts, each with its source. Read only.
 - `check_requirements` checks this product against requirements, one row at a time, with the evidence.
 - `find_compatible` finds cabinets that physically fit this extinguisher, or the reverse, with the clearance in inches. It can fit another unit from the catalog instead, such as the one the resolver named.

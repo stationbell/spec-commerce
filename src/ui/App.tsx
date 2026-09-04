@@ -238,7 +238,7 @@ export function App({ store, catalog, tools, onClose }: AppProps) {
             <ul className="sc-list">
             {decidedLines.map((l) => {
               const p = bySku(l.sku); const priced = quote.lines.find((x) => x.id === l.id);
-              return <li key={l.id}><Dot s={l.status} /><Thumb p={p} size={36} /><span className="sc-grow">{p?.name ?? l.sku} · {l.quantity}\u00a0{l.unit}{l.proposedBy === "human" && <span className="sc-why">Added by you</span>}{l.decisionNote && <span className="sc-why">You: “{l.decisionNote}”</span>}</span><span className="sc-amt">{l.status === "approved" ? (priced?.extendedCents != null ? formatCents(priced.extendedCents) : "not priced") : "rejected"}</span></li>;
+              return <li key={l.id}><Dot s={l.status} /><Thumb p={p} size={36} /><span className="sc-grow">{p?.name ?? l.sku} · {l.quantity}&nbsp;{l.unit}{l.proposedBy === "human" && <span className="sc-why">Added by you</span>}{l.decisionNote && <span className="sc-why">You: “{l.decisionNote}”</span>}</span><span className="sc-amt">{l.status === "approved" ? (priced?.extendedCents != null ? formatCents(priced.extendedCents) : "not priced") : "rejected"}</span></li>;
             })}
           </ul>
           <div className="sc-subtotal"><span>Subtotal, approved lines</span><b>{formatCents(quote.subtotalCents)}</b></div>

@@ -1,5 +1,7 @@
 # spec-commerce
 
+The easiest way for humans and agents to turn complex building specifications and plans into purchasable bills of materials for large construction projects.
+
 Turn building specifications into verified bills of materials, right on the merchant's product page. An AI agent does the reading. The page checks the facts against product data. A person approves every line.
 
 **A note before you read on.** This is an experimental demo I built for the WebMCP Challenge. It is not a finished product. It runs on one product page of our Shopify storefront behind a flag, and on a copy of that page. Nothing is sold or ordered through it. The catalog is a snapshot I copied by hand from cut sheets and product pages, and the prices are indicative. Expect rough edges. All trademarks belong to their respective companies.
@@ -10,7 +12,7 @@ The same panel is live on our store, behind a flag: https://usmadesupply.com/saf
 
 ## Inspiration
 
-I operate [US Made Supply](https://usmadesupply.com), a headless B2B e-commerce business built on Shopify. We domestically source compliance driven products including [specialty fire extinguishers](https://usmadesupply.com/resources/guides/fire-extinguisher-for-sensitive-electronics), cabinets and other code-driven building products.
+I cofounded and operate [US Made Supply](https://usmadesupply.com), a headless B2B e-commerce business built on Shopify. We domestically source compliance driven products including [specialty fire extinguishers](https://usmadesupply.com/resources/guides/fire-extinguisher-for-sensitive-electronics), cabinets and other code-driven building products.
 
 A lot of what we sell is tied to building specifications or codes, especially on complex projects like data centers. The hard part is not just finding a product. It is figuring out which exact products and combinations of products match the specifications, drawings, engineering requirements and building codes. You also need to figure out the right quantities. I recently had to do this on a large project and it took many hours of tedious effort.
 
@@ -113,14 +115,12 @@ The full demo documents, the specification excerpt, a schedule sheet and code ci
 
 The page registers these with `document.modelContext.registerTool()` in [src/webmcp/register.ts](src/webmcp/register.ts).
 
-| Tool | What it does |
-|---|---|
-| `resolve_requirements` | Takes a spec clause as written, or a list of requirements, and answers what in the catalog satisfies it. It understands a basis of design, numbered alternates and two-unit combinations. It keeps "matches the numbers" separate from "allowed by the spec". |
-| `get_product` | Returns this product's facts, each with its source. Read only. |
-| `check_requirements` | Checks this product against requirements, one row at a time, with the evidence. |
-| `find_compatible` | Finds cabinets that physically fit this extinguisher, or the reverse, with the clearance in inches. Can fit another unit from the catalog instead, such as the one the resolver named. |
-| `add_to_quote_request` | Proposes lines for the quote request and waits for the person to click Approve or Reject on the page. Returns their decisions, their reasons and their notes. |
-| `get_quote_request` | Returns the approved lines with indicative prices, including lines the person added themselves. Nothing is ever submitted from the page. |
+- `resolve_requirements` takes a spec clause as written, or a list of requirements, and answers what in the catalog satisfies it. It understands a basis of design, numbered alternates and two-unit combinations. It keeps "matches the numbers" separate from "allowed by the spec".
+- `get_product` returns this product's facts, each with its source. Read only.
+- `check_requirements` checks this product against requirements, one row at a time, with the evidence.
+- `find_compatible` finds cabinets that physically fit this extinguisher, or the reverse, with the clearance in inches. It can fit another unit from the catalog instead, such as the one the resolver named.
+- `add_to_quote_request` proposes lines for the quote request and waits for the person to click Approve or Reject on the page. It returns their decisions, their reasons and their notes.
+- `get_quote_request` returns the approved lines with indicative prices, including lines the person added themselves. Nothing is ever submitted from the page.
 
 ## Install on a product page
 
